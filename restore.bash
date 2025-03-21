@@ -17,6 +17,16 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${SCRIPT_DIR}/.."
 
+# Config file expected at PROJECT_ROOT/backup-tool.config.bash
+CONFIG_FILE="${PROJECT_ROOT}/backup-tool.config.bash"
+
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Error: Missing config file at ${CONFIG_FILE}" >&2
+    exit 1
+fi
+
+source "$CONFIG_FILE"
+
 # Determine backup type
 FILENAME="$(basename -- "$BACKUP_FILE")"
 
