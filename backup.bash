@@ -2,6 +2,8 @@
 set -e
 
 
+
+
 # ==========================================
 # SCRIPT
 # ==========================================
@@ -39,11 +41,31 @@ fi
 # Create backup directory if it doesn't exist
 mkdir -p "$BACKUP_DIR"
 
+#
+NO_STOP=0
+NO_START=0
+
+# Parse flags
+for arg in "$@"; do
+    case "$arg" in
+        --no-stop)
+            NO_STOP=1
+            ;;
+        --no-start)
+            NO_START=1
+            ;;
+        *)
+            echo "Unknown option: $arg"
+            exit 1
+            ;;
+    esac
+done
+
 # Initialize variables after validation
 DATE=$(date +"%Y%m%d")
 ARCHIVE_NAME="${DATE}.tar.gz"
 ENCRYPTED_NAME="${DATE}.${GPG_FINGERPRINT}.gpg"
-TMP_DIR=$(mktemp -d -t restore-test-XXXXXXXXXXXXXXXX)
+TMP_DIR=$(mktemp -d -t backup-tmp-XXXXXXXXXXXXXXXX)
 
 # Clean old backup files with the same names
 echo "Cleaning up old backup files..."
@@ -51,8 +73,12 @@ rm -f "${BACKUP_DIR}/${ARCHIVE_NAME}"
 rm -f "${BACKUP_DIR}/${ENCRYPTED_NAME}"
 
 # Stop Docker containers
-echo "Stopping containers..."
-docker compose --project-directory "$PROJECT_ROOT" down
+if [ "$NO_STOP" -eq 0 ]; then
+    echo "Stopping containers..."
+    docker compose --project-directory "$PROJECT_ROOT" down
+else
+    echo "Skipping stopping containers (--no-stop enabled)"
+fi
 
 # Making backup
 echo "Preparing backup structure..."
@@ -74,8 +100,13 @@ rm -rf "${TMP_DIR}"
 
 
 # Restart Docker containers
-echo "Starting Docker containers..."
-docker compose --project-directory "$PROJECT_ROOT" up -d
+if [ "$NO_START" -eq 0 ]; then
+    echo "Starting Docker containers..."
+    docker compose --project-directory "$PROJECT_ROOT" up -d
+else
+    echo "Skipping starting containers (--no-start enabled)"
+fi
+
 
 # Check if archive was created
 if [ ! -f "${BACKUP_DIR}/${ARCHIVE_NAME}" ]; then

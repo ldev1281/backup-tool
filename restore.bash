@@ -16,22 +16,14 @@ fi
 # Get absolute paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${SCRIPT_DIR}/.."
-
-# Config file expected at PROJECT_ROOT/backup-tool.config.bash
 CONFIG_FILE="${PROJECT_ROOT}/backup-tool.config.bash"
 
-if [ ! -f "$CONFIG_FILE" ]; then
-    echo "Error: Missing config file at ${CONFIG_FILE}" >&2
-    exit 1
-fi
-
-source "$CONFIG_FILE"
 
 # Determine backup type
 FILENAME="$(basename -- "$BACKUP_FILE")"
 
 # Generate unique temp directory
-TMP_DIR=$(mktemp -d -t restore-test-XXXXXXXXXXXXXXXX)
+TMP_DIR=$(mktemp -d -t restore-temp-XXXXXXXXXXXXXXXX)
 TMP_ARCHIVE="${TMP_DIR}/${FILENAME%.gpg}"
 echo "Created temporary directory: $TMP_DIR"
 
@@ -78,27 +70,46 @@ else
     exit 1
 fi
 
-
 #
+# Step 3: Pre-restore backup (optional)
 #
-# Step 3: Stopping Docker containers
-echo "Stopping Docker containers..."
-docker compose --project-directory "$PROJECT_ROOT" down
-
-
-#
-#
-# Step 4: Pre-restore backup (optional)
-echo "Creating pre-restore backup using backup.bash..."
-
-if ! "${SCRIPT_DIR}/backup.bash"; then
-    echo "Warning: Pre-restore backup failed. Continuing with restore..." >&2
+if [ -f "$CONFIG_FILE" ]; then
+    echo "Creating pre-restore backup using backup.bash..."
+    if ! "${SCRIPT_DIR}/backup.bash" --no-stop --no-start; then
+        echo "Warning: Pre-restore backup failed. Continuing with restore..." >&2
+    fi
+else
+    echo "No existing backup-tool.config.bash found. Skipping pre-restore backup."
 fi
 
 
 #
+# Step 4: Restore config BEFORE everything else
 #
-# Step 5: Restoring files from backup archive
+echo "Restoring backup-tool.config.bash..."
+if [ ! -f "${TMP_DIR}/backup-tool.config.bash" ]; then
+    echo "Error: backup-tool.config.bash not found in archive!" >&2
+    exit 1
+fi
+
+cp "${TMP_DIR}/backup-tool.config.bash" "$CONFIG_FILE"
+
+echo "Sourcing restored config file..."
+source "$CONFIG_FILE"
+
+
+
+#
+# Step 5: Stopping Docker containers
+#
+echo "Stopping Docker containers..."
+docker compose --project-directory "$PROJECT_ROOT" down
+
+
+
+#
+# Step 6: Restoring files from backup archive
+#
 echo "Restoring files from backup archive..."
 
 for ITEM in "${TO_BACKUP[@]}"; do
@@ -119,7 +130,7 @@ done
 
 #
 #
-# Step 6: Starting Docker containers
+# Step 7: Starting Docker containers
 echo "Starting Docker containers..."
 docker compose --project-directory "$PROJECT_ROOT" up -d
 
