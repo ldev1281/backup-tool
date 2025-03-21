@@ -43,6 +43,7 @@ mkdir -p "$BACKUP_DIR"
 DATE=$(date +"%Y%m%d")
 ARCHIVE_NAME="${DATE}.tar.gz"
 ENCRYPTED_NAME="${DATE}.${GPG_FINGERPRINT}.gpg"
+TMP_DIR=$(mktemp -d -t restore-test-XXXXXXXXXXXXXXXX)
 
 # Clean old backup files with the same names
 echo "Cleaning up old backup files..."
@@ -53,9 +54,24 @@ rm -f "${BACKUP_DIR}/${ENCRYPTED_NAME}"
 echo "Stopping containers..."
 docker compose --project-directory "$PROJECT_ROOT" down
 
-# Create backup archive
-echo "Creating archive ${ARCHIVE_NAME}..."
-tar -czf "${BACKUP_DIR}/${ARCHIVE_NAME}" -C "$PROJECT_ROOT" "${TO_BACKUP[@]}"
+# Making backup
+echo "Preparing backup structure..."
+mkdir -p "${TMP_DIR}/data"
+
+echo "Copying config..."
+cp "${CONFIG_FILE}" "${TMP_DIR}/backup-tool.config.bash"
+
+echo "Copying data..."
+for item in "${TO_BACKUP[@]}"; do
+    cp -a "${PROJECT_ROOT}/${item}" "${TMP_DIR}/data/"
+done
+
+echo "Creating archive ${ARCHIVE_NAME} with required structure..."
+tar -czf "${BACKUP_DIR}/${ARCHIVE_NAME}" -C "${TMP_DIR}" .
+
+echo "Cleaning up temporary files..."
+rm -rf "${TMP_DIR}"
+
 
 # Restart Docker containers
 echo "Starting Docker containers..."
