@@ -88,7 +88,7 @@ if [ -f "$CONFIG_FILE" ]; then
     # Sub-step 1: Pre-restore backup (optional)
     #
     echo "Creating pre-restore backup using backup.bash..."
-    if ! "${SCRIPT_DIR}/backup.bash" --no-stop --no-start; then
+    if ! "${SCRIPT_DIR}/backup.bash"; then
         echo "Warning: Pre-restore backup failed. Continuing with restore..." >&2
     fi
 
