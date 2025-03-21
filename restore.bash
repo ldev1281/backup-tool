@@ -144,7 +144,7 @@ source "$CONFIG_FILE"
 echo "Restoring files from backup archive..."
 
 for ITEM in "${TO_BACKUP[@]}"; do
-    SRC="${TMP_DIR}/${ITEM}"
+    SRC="${TMP_DIR}/data/${ITEM}"
     DST="${PROJECT_ROOT}/${ITEM}"
 
     if [ -f "$SRC" ]; then
