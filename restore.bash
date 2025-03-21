@@ -31,7 +31,7 @@ echo "Created temporary directory: $TMP_DIR"
 cleanup() {
     if [[ -n "$TMP_DIR" && -d "$TMP_DIR" ]]; then
         echo "Cleaning up temporary directory: $TMP_DIR"
-        #rm -rf "$TMP_DIR"
+        rm -rf "$TMP_DIR"
     fi
 }
 
@@ -58,6 +58,7 @@ else
 fi
 
 
+
 #
 #
 # Step 2: Archive extraction
@@ -70,28 +71,66 @@ else
     exit 1
 fi
 
+if [ ! -f "${TMP_DIR}/backup-tool.config.bash" ]; then
+    echo "Error: backup-tool.config.bash not found in archive!" >&2
+    exit 1
+fi
+
+
+
 #
-# Step 3: Pre-restore backup (optional)
+# Step 3: Pre-restore preparation
 #
 if [ -f "$CONFIG_FILE" ]; then
+    echo "Existing config found. Starting pre-restore preparation..."
+
+    #
+    # Sub-step 1: Pre-restore backup (optional)
+    #
     echo "Creating pre-restore backup using backup.bash..."
     if ! "${SCRIPT_DIR}/backup.bash" --no-stop --no-start; then
         echo "Warning: Pre-restore backup failed. Continuing with restore..." >&2
     fi
+
+    #
+    # Sub-step 2: Stopping Docker containers (if running)
+    #
+    echo "Stopping running Docker containers..."
+    docker compose --project-directory "$PROJECT_ROOT" down
+
+    #
+    # Sub-step 3: Clearing files listed in TO_BACKUP and removing old config
+    #
+    echo "Clearing backed up items listed in TO_BACKUP..."
+
+    # Source old config to get TO_BACKUP
+    source "$CONFIG_FILE"
+
+    for ITEM in "${TO_BACKUP[@]}"; do
+        TARGET="${PROJECT_ROOT}/${ITEM}"
+        if [ -e "$TARGET" ]; then
+            echo "Removing $TARGET ..."
+            rm -rf "$TARGET"
+        else
+            echo "No such file or directory to remove: $TARGET (skipping)"
+        fi
+    done
+
+    echo "Removing old config: $CONFIG_FILE"
+    rm -f "$CONFIG_FILE"
+
+    echo "Clearing completed."
+
 else
-    echo "No existing backup-tool.config.bash found. Skipping pre-restore backup."
+    echo "No existing config found. Skipping pre-restore preparation."
 fi
+
 
 
 #
 # Step 4: Restore config BEFORE everything else
 #
 echo "Restoring backup-tool.config.bash..."
-if [ ! -f "${TMP_DIR}/backup-tool.config.bash" ]; then
-    echo "Error: backup-tool.config.bash not found in archive!" >&2
-    exit 1
-fi
-
 cp "${TMP_DIR}/backup-tool.config.bash" "$CONFIG_FILE"
 
 echo "Sourcing restored config file..."
@@ -100,15 +139,7 @@ source "$CONFIG_FILE"
 
 
 #
-# Step 5: Stopping Docker containers
-#
-echo "Stopping Docker containers..."
-docker compose --project-directory "$PROJECT_ROOT" down
-
-
-
-#
-# Step 6: Restoring files from backup archive
+# Step 5: Restoring files from backup archive
 #
 echo "Restoring files from backup archive..."
 
@@ -118,10 +149,10 @@ for ITEM in "${TO_BACKUP[@]}"; do
 
     if [ -f "$SRC" ]; then
         echo "Restoring file: ${ITEM}"
-        mv "$SRC" "$DST"
+        cp -a "$SRC" "$DST"
     elif [ -d "$SRC" ]; then
         echo "Restoring directory: ${ITEM}"
-        mv "$SRC" "$DST"
+        cp -a "$SRC" "$DST"
     else
         echo "Warning: ${ITEM} not found in backup archive" >&2
     fi
@@ -130,7 +161,7 @@ done
 
 #
 #
-# Step 7: Starting Docker containers
+# Step 6: Starting Docker containers
 echo "Starting Docker containers..."
 docker compose --project-directory "$PROJECT_ROOT" up -d
 
