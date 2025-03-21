@@ -9,10 +9,20 @@ set -e
 # Get absolute paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${SCRIPT_DIR}/.."
-BACKUP_DIR="${SCRIPT_DIR}/data"
+BACKUP_DIR="${PROJECT_ROOT}/backups"
 
-# Load config
-source "${SCRIPT_DIR}/.config.bash"
+# Config file expected at PROJECT_ROOT/backup-tool.config.bash
+CONFIG_FILE="${PROJECT_ROOT}/backup-tool.config.bash"
+
+# Validate config presence
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Error: Missing config file at ${CONFIG_FILE}" >&2
+    echo "Copy backup-tool/backup-tool.config.bash to backup-tool.config.bash and configure it." >&2
+    exit 1
+fi
+
+# Source the config
+source "$CONFIG_FILE"
 
 # Validate GPG fingerprint if provided
 if [ -n "$GPG_FINGERPRINT" ]; then
