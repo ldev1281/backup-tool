@@ -31,7 +31,7 @@ echo "Created temporary directory: $TMP_DIR"
 cleanup() {
     if [[ -n "$TMP_DIR" && -d "$TMP_DIR" ]]; then
         echo "Cleaning up temporary directory: $TMP_DIR"
-        rm -rf "$TMP_DIR"
+        #rm -rf "$TMP_DIR"
     fi
 }
 
