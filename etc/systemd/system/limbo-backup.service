@@ -1,0 +1,24 @@
+[Unit]
+Description=Run limbo-backup tasks
+Documentation=https://github.com/jordimock/backup-tool
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/limbo-backup.bash
+User=root
+Group=root
+
+# Prevent simultaneous execution
+ExecStartPre=/usr/bin/flock -n /run/limbo-backup.lock -c true
+
+# Log output to journal
+StandardOutput=journal
+StandardError=journal
+
+# Do not kill related processes if this fails
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

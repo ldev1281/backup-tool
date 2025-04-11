@@ -1,0 +1,10 @@
+[Unit]
+Description=Run limbo-backup tasks daily
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target
