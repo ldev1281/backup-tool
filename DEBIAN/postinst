@@ -1,0 +1,27 @@
+#!/bin/bash
+set -e
+
+logger -p user.info -t limbo-backup-postinst "Post-install script starting..."
+
+# Ensure systemd is running
+if pidof systemd > /dev/null; then
+  logger -p user.info -t limbo-backup-postinst "Reloading systemd units..."
+  systemctl daemon-reexec
+  systemctl daemon-reload
+
+  logger -p user.info -t limbo-backup-postinst "Enabling and starting limbo-backup.timer..."
+  systemctl enable limbo-backup.timer
+  systemctl start limbo-backup.timer
+else
+  logger -p user.warn -t limbo-backup-postinst "Systemd not detected. Skipping timer activation."
+fi
+
+# Create required directories
+mkdir -p /var/log/limbo-backup/
+mkdir -p /var/lib/limbo-backup/artefacts/
+
+# Set executable permissions
+chmod +x /usr/local/bin/limbo-backup.bash
+chmod +x /usr/local/bin/limbo-restore.bash
+
+logger -p user.info -t limbo-backup-postinst "Post-install completed successfully."

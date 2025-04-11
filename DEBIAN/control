@@ -1,0 +1,10 @@
+Package: limbo-backup-tool
+Version: 0.1
+Section: admin
+Priority: optional
+Architecture: all
+Depends: bash, systemd, coreutils, rsync, openssh-client
+Maintainer: Jordi Mock <mockjordi@gmail.com>
+Description: Modular backup system with pluggable tasks and modules
+ A systemd-timer-driven backup tool that executes configurable backup tasks and applies modular post-processing.
+ Supports pre/post commands, file inclusion/exclusion, SFTP uploads, and plugin-style module processing.
