@@ -9,8 +9,10 @@ source /etc/limbo-backup/backup.conf.bash
 # Determine input file based on GPG usage
 if [[ -n "${GPG_FINGERPRINT:-}" ]]; then
   UPLOAD_SOURCE_PATH="$GPG_ARTEFACTS_DIR/${BACKUP_NAME}.tar.gz.gpg"
+  REMOTE_PATH_CURRENT="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.tar.gz.gpg"
 else
   UPLOAD_SOURCE_PATH="$TAR_ARTEFACTS_DIR/${BACKUP_NAME}.tar.gz"
+  REMOTE_PATH_CURRENT="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.tar.gz"
 fi
 
 
@@ -48,12 +50,10 @@ case "$RCLONE_PROTO" in
     ;;
 esac
 
-# Final path for the "current" backup
-REMOTE_PATH_CURRENT="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.tar.gz.gpg"
-
 # Upload the "current" backup
 logger -p user.info -t "$LOGGER_TAG" "Uploading backup: $UPLOAD_SOURCE_PATH → $REMOTE_PATH_CURRENT"
-rclone copy "$UPLOAD_SOURCE_PATH" "$RCLONE_REMOTE_TARGET/$REMOTE_PATH_CURRENT"
+rclone copy "$UPLOAD_SOURCE_PATH" "$RCLONE_REMOTE_TARGET" --sftp-path="$REMOTE_PATH_CURRENT"
+
 
 
 # Versioned paths based on date
@@ -68,7 +68,7 @@ REMOTE_PATH_YEAR="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.${YEAR}.tar.gz.gpg"
 # Duplicate the "current" for versioned names
 for versioned_path in "$REMOTE_PATH_DAY" "$REMOTE_PATH_MONTH" "$REMOTE_PATH_YEAR"; do
   logger -p user.info -t "$LOGGER_TAG" "Creating versioned copy: $versioned_path"
-  rclone copy "$RCLONE_REMOTE_TARGET/$REMOTE_PATH_CURRENT" "$RCLONE_REMOTE_TARGET/$versioned_path"
+  rclone copy "$RCLONE_REMOTE_TARGET,/$REMOTE_PATH_CURRENT" "$RCLONE_REMOTE_TARGET,/$versioned_path"
 done
 
 
