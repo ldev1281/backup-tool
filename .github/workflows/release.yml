@@ -25,8 +25,8 @@ jobs:
     - name: Set executable permissions
       run: |
         chmod +x DEBIAN/postinst
-        chmod +x usr/local/bin/limbo-backup.bash
-        chmod +x usr/local/bin/limbo-restore.bash
+        chmod +x usr/bin/limbo-backup.bash
+        chmod +x usr/bin/limbo-restore.bash
         chmod -R +x usr/lib/limbo-backup/backup.modules.d/
         chmod -R +x usr/lib/limbo-backup/restore.modules.d/
 

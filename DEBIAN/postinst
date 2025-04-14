@@ -20,7 +20,7 @@ fi
 mkdir -p /var/log/limbo-backup/
 
 # Set executable permissions
-chmod +x /usr/local/bin/limbo-backup.bash
-chmod +x /usr/local/bin/limbo-restore.bash
+chmod +x /usr/bin/limbo-backup.bash
+chmod +x /usr/bin/limbo-restore.bash
 
 logger -p user.info -t limbo-backup-postinst "Post-install completed successfully."

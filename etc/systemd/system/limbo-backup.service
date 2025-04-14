@@ -6,7 +6,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/limbo-backup.bash
+ExecStart=/usr/bin/limbo-backup.bash
 User=root
 Group=root
 
