@@ -61,16 +61,13 @@ TODAY=$(date +'%Y-%m-%d')
 MONTH=$(date +'%Y-%m')
 YEAR=$(date +'%Y')
 
-REMOTE_PATH_DAY="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.${TODAY}.tar.gz.gpg"
-REMOTE_PATH_MONTH="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.${MONTH}.tar.gz.gpg"
-REMOTE_PATH_YEAR="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.${YEAR}.tar.gz.gpg"
-
-# Duplicate the "current" for versioned names
-#for versioned_path in "$REMOTE_PATH_DAY" "$REMOTE_PATH_MONTH" "$REMOTE_PATH_YEAR"; do
-#  logger -p user.info -t "$LOGGER_TAG" "Creating versioned copy: $versioned_path"
-#  rclone copy "$RCLONE_REMOTE_TARGET:/$REMOTE_PATH_CURRENT" "$RCLONE_REMOTE_TARGET:/$versioned_path"
-#done
-
+for SUFFIX in "$YEAR" "$MONTH" "$TODAY"; do
+  REMOTE_PATH_VERSIONED="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.${SUFFIX}.tar.gz.gpg"
+  logger -p user.info -t "$LOGGER_TAG" "Creating versioned copy: $REMOTE_PATH_VERSIONED"
+  rclone copyto "$RCLONE_REMOTE_BASE:$REMOTE_PATH_CURRENT" "$RCLONE_REMOTE_BASE:$REMOTE_PATH_VERSIONED" \
+    --sftp-pass="$RCLONE_PASS_OBFUSCURED" \
+    --no-traverse
+done
 
 #
 logger -p user.info -t "$LOGGER_TAG" "rclone upload module finished successfully."
