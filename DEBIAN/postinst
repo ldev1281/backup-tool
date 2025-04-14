@@ -18,7 +18,7 @@ fi
 
 # Create required directories
 mkdir -p /var/log/limbo-backup/
-mkdir -p /var/lib/limbo-backup/artefacts/
+mkdir -p /var/lib/limbo-backup/artefacts/backup-rsync/
 
 # Set executable permissions
 chmod +x /usr/local/bin/limbo-backup.bash
