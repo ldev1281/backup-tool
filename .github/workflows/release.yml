@@ -1,0 +1,42 @@
+name: Build and release .deb
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # это нужно, чтобы запустить docker
+    container:
+      image: debian:stable
+      options: --user root
+
+    steps:
+    - name: Install build dependencies
+      run: |
+        apt update
+        apt install -y dpkg-dev bash coreutils rsync openssh-client
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set executable permissions
+      run: |
+        chmod +x DEBIAN/postinst
+        chmod +x usr/local/bin/limbo-backup.bash
+        chmod +x usr/local/bin/limbo-restore.bash
+        chmod -R +x usr/lib/limbo-backup/plugins.d/
+
+    - name: Build .deb package
+      run: |
+        VERSION=${GITHUB_REF_NAME#v}
+        mkdir -p build
+        dpkg-deb --build backup-tool "build/limbo-backup-tool_${VERSION}.deb"
+
+    - name: Upload .deb to GitHub release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: build/*.deb
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
