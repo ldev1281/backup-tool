@@ -22,13 +22,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Show working directory and contents
+    - name: Show current directory
       run: |
         pwd
         ls -al
 
     - name: Set executable permissions
-      working-directory: ./backup-tool
       run: |
         chmod +x DEBIAN/postinst
         chmod +x usr/local/bin/limbo-backup.bash
@@ -37,11 +36,10 @@ jobs:
         chmod -R +x usr/lib/limbo-backup/restore.modules.d/
 
     - name: Build .deb package
-      working-directory: ./backup-tool
       run: |
         VERSION=${GITHUB_REF_NAME#v}
-        mkdir -p ../build
-        dpkg-deb --build . "../build/limbo-backup.${VERSION}.deb"
+        mkdir -p build
+        dpkg-deb --build . "build/limbo-backup.${VERSION}.deb"
 
     - name: Upload .deb to GitHub release
       uses: softprops/action-gh-release@v1
