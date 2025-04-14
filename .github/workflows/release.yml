@@ -22,11 +22,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Show current directory
-      run: |
-        pwd
-        ls -al
-
     - name: Set executable permissions
       run: |
         chmod +x DEBIAN/postinst
