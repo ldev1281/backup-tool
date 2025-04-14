@@ -44,7 +44,7 @@ if [[ ! -f "$TAR_SOURCE_PATH" ]]; then
   exit 1
 fi
 logger -p user.info -t "$LOGGER_TAG" "Encrypting archive using GPG key: $GPG_FINGERPRINT"
-gpg --batch --yes --output "$GPG_OUTPUT_PATH" --recipient "$GPG_FINGERPRINT" --encrypt "$TAR_SOURCE_PATH"
+gpg --batch --yes --trust-model always --output "$GPG_OUTPUT_PATH" --recipient "$GPG_FINGERPRINT" --encrypt "$TAR_SOURCE_PATH"
 logger -p user.info -t "$LOGGER_TAG" "Encryption complete: $GPG_OUTPUT_PATH"
 
 
