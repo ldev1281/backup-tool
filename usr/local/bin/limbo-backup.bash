@@ -2,7 +2,11 @@
 
 set -euo pipefail
 
+source /usr/lib/limbo-backup/backup.defaults.bash
 source /etc/limbo-backup/backup.conf.bash
+
+# Directory containing all backup modules
+MODULES_DIR="/lib/limbo-backup/backup.modules.d"
 
 logger -p user.debug -t "$LOGGER_TAG" "MODULES_DIR=$MODULES_DIR"
 
