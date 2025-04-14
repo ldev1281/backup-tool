@@ -42,7 +42,7 @@ RCLONE_PASS_OBFUSCURED=$(rclone obscure "$RCLONE_PASS")
 # Generate rclone backend URL based on protocol
 case "$RCLONE_PROTO" in
   sftp)
-    RCLONE_REMOTE_TARGET=":sftp:host=${RCLONE_HOST},user=${RCLONE_USER},port=${RCLONE_PORT},pass=${RCLONE_PASS_OBFUSCURED}"
+    RCLONE_REMOTE_BASE=":sftp,host=${RCLONE_HOST},user=${RCLONE_USER},port=${RCLONE_PORT}"
     ;;
   *)
     logger -p user.err -t "$LOGGER_TAG" "Unsupported RCLONE_PROTO: $RCLONE_PROTO"
@@ -52,9 +52,9 @@ esac
 
 # Upload the "current" backup
 logger -p user.info -t "$LOGGER_TAG" "Uploading backup: $LOCAL_PATH_CURRENT → $REMOTE_PATH_CURRENT"
-rclone copy "$LOCAL_PATH_CURRENT" "$RCLONE_REMOTE_TARGET:$REMOTE_PATH_CURRENT"
-
-
+rclone copyto "$LOCAL_PATH_CURRENT" "$RCLONE_REMOTE_BASE:$REMOTE_PATH_CURRENT" \
+  --sftp-pass="$RCLONE_PASS_OBFUSCURED" \
+  --no-traverse
 
 # Versioned paths based on date
 TODAY=$(date +'%Y-%m-%d')
@@ -66,10 +66,10 @@ REMOTE_PATH_MONTH="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.${MONTH}.tar.gz.gpg"
 REMOTE_PATH_YEAR="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.${YEAR}.tar.gz.gpg"
 
 # Duplicate the "current" for versioned names
-for versioned_path in "$REMOTE_PATH_DAY" "$REMOTE_PATH_MONTH" "$REMOTE_PATH_YEAR"; do
-  logger -p user.info -t "$LOGGER_TAG" "Creating versioned copy: $versioned_path"
-  rclone copy "$RCLONE_REMOTE_TARGET:/$REMOTE_PATH_CURRENT" "$RCLONE_REMOTE_TARGET:/$versioned_path"
-done
+#for versioned_path in "$REMOTE_PATH_DAY" "$REMOTE_PATH_MONTH" "$REMOTE_PATH_YEAR"; do
+#  logger -p user.info -t "$LOGGER_TAG" "Creating versioned copy: $versioned_path"
+#  rclone copy "$RCLONE_REMOTE_TARGET:/$REMOTE_PATH_CURRENT" "$RCLONE_REMOTE_TARGET:/$versioned_path"
+#done
 
 
 #
