@@ -1,12 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
+
 # Load backup configuration
 source /usr/lib/limbo-backup/backup.defaults.bash
 source /etc/limbo-backup/backup.conf.bash
 
 #
 METADATA_DIR="$RSYNC_ARTEFACTS_DIR/.limbo-backup"
+
 
 #
 logger -p user.info -t "$LOGGER_TAG" "Starting RSYNC module execution..."
@@ -62,4 +64,6 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
   logger -p user.info -t "$LOGGER_TAG" "Backup completed for: $ARTEFACT_NAME"
 done
 
+
+#
 logger -p user.info -t "$LOGGER_TAG" "RSYNC module execution finished."
