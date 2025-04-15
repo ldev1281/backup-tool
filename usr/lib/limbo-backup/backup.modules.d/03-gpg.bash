@@ -13,8 +13,8 @@ GPG_OUTPUT_PATH="$GPG_ARTEFACTS_DIR/${BACKUP_NAME}.tar.gz.gpg"
 
 #########################################################################
 
-# Skip module if no fingerprint
-if [[ -z "${GPG_FINGERPRINT:-}" ]]; then
+# Skip module if disabled
+if [[ "${GPG_ENABLED:-0}" -ne 1 ]]; then
   logger -p user.info -t "$LOGGER_TAG" "GPG_FINGERPRINT not set — skipping encryption module"
   exit 0
 fi

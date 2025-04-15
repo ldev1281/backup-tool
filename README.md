@@ -62,35 +62,6 @@ Global settings are defined in:
 /etc/limbo-backup/backup.conf.bash
 ```
 
-This file includes:
-
-```bash
-# === Global settings ===
-BACKUP_NAME="limbo-backup"
-ARTEFACTS_DIR="/var/lib/limbo-backup/artefacts"
-
-# === Module-specific settings ===
-
-# rsync
-RSYNC_ARTEFACTS_DIR="$ARTEFACTS_DIR/backup-rsync"
-
-# tar.gz
-TAR_ARTEFACTS_DIR="$ARTEFACTS_DIR/backup-tar"
-
-# gpg encryption
-GPG_ARTEFACTS_DIR="$ARTEFACTS_DIR/backup-gpg"
-GPG_DELETE_TAR_SOURCE=1
-GPG_FINGERPRINT="EXAMPLE_GPG_KEY_FINGERPRINT"
-
-# rclone upload (SFTP example)
-RCLONE_PROTO="sftp"
-RCLONE_HOST="your.remote.host"
-RCLONE_PORT="22"
-RCLONE_USER="backupuser"
-RCLONE_PASS="your_encrypted_or_app_password"
-RCLONE_REMOTE_PATH="/backups/limbo"
-```
-
 Modify values according to your environment.
 
 > This file is treated as a conffile: it will not be overwritten or removed during package upgrades or uninstallation.
@@ -121,8 +92,8 @@ All tasks are executed **in alphanumeric order**, based on the `NN-` prefix.
 
 **Example filenames:**
 
-- `01-database.conf.bash`
-- `10-outline.conf.bash`
+- `01-example.conf.bash`
+- `10-outline-app.conf.bash`
 - `99-media.conf.bash`
 
 Only files that match this pattern and are executable will be processed.
