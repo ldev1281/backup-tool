@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
+#########################################################################
 
 # Load global and user configuration
 source /usr/lib/limbo-backup/backup.defaults.bash
@@ -15,10 +16,12 @@ else
   REMOTE_PATH_CURRENT="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.tar.gz"
 fi
 
+#########################################################################
 
 #
-logger -p user.info -t "$LOGGER_TAG" "Starting rclone encryption module..."
+logger -p user.info -t "$LOGGER_TAG" "Starting rclone module..."
 
+#########################################################################
 
 # Verify that input file exists
 if [[ ! -f "$LOCAL_PATH_CURRENT" ]]; then
@@ -34,7 +37,7 @@ fi
 : "${RCLONE_PASS:?RCLONE_PASS is not set}"
 : "${RCLONE_REMOTE_PATH:?RCLONE_REMOTE_PATH is not set}"
 
-logger -p user.info -t "$LOGGER_TAG" "Starting rclone upload module using protocol: $RCLONE_PROTO"
+logger -p user.info -t "$LOGGER_TAG" "Uploading using protocol: $RCLONE_PROTO"
 
 # Obscure password for rclone
 RCLONE_PASS_OBFUSCURED=$(rclone obscure "$RCLONE_PASS")
@@ -68,6 +71,8 @@ for SUFFIX in "$YEAR" "$MONTH" "$TODAY"; do
     --sftp-pass="$RCLONE_PASS_OBFUSCURED" \
     --no-traverse
 done
+
+#########################################################################
 
 #
 logger -p user.info -t "$LOGGER_TAG" "rclone upload module finished successfully."

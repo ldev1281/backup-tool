@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
+#########################################################################
 
 # Load backup configuration
 source /usr/lib/limbo-backup/backup.defaults.bash
@@ -9,19 +10,24 @@ source /etc/limbo-backup/backup.conf.bash
 #
 METADATA_DIR="$RSYNC_ARTEFACTS_DIR/.limbo-backup"
 
+#########################################################################
 
 #
 logger -p user.info -t "$LOGGER_TAG" "Starting RSYNC module execution..."
 
+#########################################################################
 
 # create folders
 mkdir -p "$RSYNC_ARTEFACTS_DIR"
 mkdir -p "$METADATA_DIR"
-mkdir -p "$METADATA_DIR/rsync.conf.d/"
 
-# copying urgent data
-rsync -a --delete "$RSYNC_CONFIG_DIR/" "$METADATA_DIR/rsync.conf.d/"
-cp "$VERSION_FILE" "$METADATA_DIR/VERSION"
+# backup config
+rsync -aR --delete "$CONFIG_DIR" "$METADATA_DIR"
+
+# backup version
+rsync -aR --delete "$VERSION_FILE" "$METADATA_DIR"
+
+#########################################################################
 
 # Find all matching config files and sort by name
 mapfile -t RSYNC_CONFIG_FILES < <(find "$RSYNC_CONFIG_DIR" -type f -name '[0-9][0-9]-*.conf.bash' | sort)
@@ -64,6 +70,7 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
   logger -p user.info -t "$LOGGER_TAG" "Backup completed for: $ARTEFACT_NAME"
 done
 
+#########################################################################
 
 #
 logger -p user.info -t "$LOGGER_TAG" "RSYNC module execution finished."
