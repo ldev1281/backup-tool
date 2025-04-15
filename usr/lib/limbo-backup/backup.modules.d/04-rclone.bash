@@ -21,7 +21,7 @@ logger -p user.info -t "$LOGGER_TAG" "Starting rclone module..."
 #########################################################################
 
 # Determine input file based on GPG usage
-if [[ -n "${GPG_FINGERPRINT:-}" ]]; then
+if [[ "${GPG_ENABLED:-0}" -eq 1 ]]; then
   LOCAL_PATH_CURRENT="$GPG_ARTEFACTS_DIR/${BACKUP_NAME}.tar.gz.gpg"
   REMOTE_PATH_CURRENT="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.tar.gz.gpg"
 else
