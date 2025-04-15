@@ -97,10 +97,6 @@ Modify values according to your environment.
 
 ---
 
-Отлично, давай точно и понятно зафиксируем правила именования файлов в секции **Task definitions**. Вот как будет выглядеть обновлённая и структурированная версия этой секции:
-
----
-
 ### Task definitions
 
 Individual backup tasks are defined as configuration files in:
