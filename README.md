@@ -97,15 +97,45 @@ Modify values according to your environment.
 
 ---
 
+Отлично, давай точно и понятно зафиксируем правила именования файлов в секции **Task definitions**. Вот как будет выглядеть обновлённая и структурированная версия этой секции:
+
+---
+
 ### Task definitions
 
-Individual backup tasks are stored in:
+Individual backup tasks are defined as configuration files in:
 
 ```
 /etc/limbo-backup/rsync.conf.d/
 ```
 
-Each file describes one backup job and follows this format:
+Each file describes one backup job and **must follow the naming convention**:
+
+```
+NN-name.conf.bash
+```
+
+Where:
+
+- `NN` — a two-digit number that determines execution order (e.g. `01`, `10`, `99`)
+- `name` — any identifier for the task (e.g. `database`, `outline`, `media`)
+- `*.conf.bash` — required extension, all files must be readable Bash scripts
+
+All tasks are executed **in alphanumeric order**, based on the `NN-` prefix.
+
+**Example filenames:**
+
+- `01-database.conf.bash`
+- `10-outline.conf.bash`
+- `99-media.conf.bash`
+
+Only files that match this pattern and are executable will be processed.
+
+---
+
+### File format
+
+Each task file should define the following variables:
 
 ```bash
 CMD_BEFORE_BACKUP="docker compose --project-directory /docker/your-app stop"
@@ -121,10 +151,10 @@ EXCLUDE_PATHS=(
 )
 ```
 
-You can create multiple `.bash` files in this directory. They will be executed in alphanumeric order.
+> You can define any number of `INCLUDE_PATHS` and `EXCLUDE_PATHS`.  
+> `CMD_BEFORE_BACKUP` and `CMD_AFTER_BACKUP` are optional.
 
 ---
-
 
 ## Uninstall
 
