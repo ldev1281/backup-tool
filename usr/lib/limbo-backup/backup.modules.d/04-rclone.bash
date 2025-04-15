@@ -43,19 +43,16 @@ fi
 
 logger -p user.info -t "$LOGGER_TAG" "Uploading using protocol: $RCLONE_PROTO"
 
-# Obscure password for rclone
-RCLONE_PASS_OBFUSCURED=$(rclone obscure "$RCLONE_PASS")
-
 # Generate rclone backend URL based on protocol
 case "$RCLONE_PROTO" in
   sftp)
-    : "${RCLONE_HOST:?RCLONE_HOST is not set}"
-    : "${RCLONE_PORT:?RCLONE_PORT is not set}"
-    : "${RCLONE_USER:?RCLONE_USER is not set}"
-    : "${RCLONE_PASS:?RCLONE_PASS is not set}"
+    : "${RCLONE_SFTP_HOST:?RCLONE_SFTP_HOST is not set}"
+    : "${RCLONE_SFTP_PORT:?RCLONE_SFTP_PORT is not set}"
+    : "${RCLONE_SFTP_USER:?RCLONE_SFTP_USER is not set}"
+    : "${RCLONE_SFTP_PASS:?RCLONE_SFTP_PASS is not set}"
 
-    RCLONE_REMOTE_BASE=":sftp,host=${RCLONE_HOST},user=${RCLONE_USER},port=${RCLONE_PORT}"
-    RCLONE_EXTRA_FLAGS=(--sftp-pass="$(rclone obscure "$RCLONE_PASS")")
+    RCLONE_REMOTE_BASE=":sftp,host=${RCLONE_SFTP_HOST},user=${RCLONE_SFTP_USER},port=${RCLONE_SFTP_PORT}"
+    RCLONE_EXTRA_FLAGS=(--sftp-pass="$(rclone obscure "$RCLONE_SFTP_PASS")")
     ;;
   s3)
     : "${RCLONE_S3_BUCKET:?RCLONE_S3_BUCKET is not set}"
