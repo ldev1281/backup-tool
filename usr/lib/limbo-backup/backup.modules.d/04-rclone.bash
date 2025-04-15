@@ -71,6 +71,10 @@ case "$RCLONE_PROTO" in
         RCLONE_EXTRA_FLAGS+=(--s3-endpoint="$RCLONE_S3_ENDPOINT")
     fi
 
+    if [[ -n "${RCLONE_S3_PROVIDER:-}" ]]; then
+    RCLONE_EXTRA_FLAGS+=(--s3-provider="$RCLONE_S3_PROVIDER")
+    fi
+    
     if [[ -n "${RCLONE_S3_STORAGE_CLASS:-}" ]]; then
         RCLONE_EXTRA_FLAGS+=(--s3-storage-class="$RCLONE_S3_STORAGE_CLASS")
     fi
