@@ -45,6 +45,7 @@ logger -p user.info -t "$LOGGER_TAG" "Uploading using protocol: $RCLONE_PROTO"
 
 # Generate rclone backend URL based on protocol
 case "$RCLONE_PROTO" in
+
   sftp)
     : "${RCLONE_SFTP_HOST:?RCLONE_SFTP_HOST is not set}"
     : "${RCLONE_SFTP_PORT:?RCLONE_SFTP_PORT is not set}"
@@ -54,43 +55,56 @@ case "$RCLONE_PROTO" in
     RCLONE_REMOTE_BASE=":sftp,host=${RCLONE_SFTP_HOST},user=${RCLONE_SFTP_USER},port=${RCLONE_SFTP_PORT}"
     RCLONE_EXTRA_FLAGS=(--sftp-pass="$(rclone obscure "$RCLONE_SFTP_PASS")")
     ;;
+
+
   s3)
     : "${RCLONE_S3_BUCKET:?RCLONE_S3_BUCKET is not set}"
     : "${RCLONE_S3_KEY:?RCLONE_S3_KEY is not set}"
     : "${RCLONE_S3_SECRET:?RCLONE_S3_SECRET is not set}"
-    : "${RCLONE_S3_REGION:?RCLONE_S3_REGION is not set}"
 
     RCLONE_REMOTE_BASE=":s3:${RCLONE_S3_BUCKET}"
     RCLONE_EXTRA_FLAGS=(
       --s3-access-key-id="$RCLONE_S3_KEY"
       --s3-secret-access-key="$RCLONE_S3_SECRET"
-      --s3-region="$RCLONE_S3_REGION"
     )
 
-    if [[ -n "${RCLONE_S3_ENDPOINT:-}" ]]; then
-        RCLONE_EXTRA_FLAGS+=(--s3-endpoint="$RCLONE_S3_ENDPOINT")
+    # Optional: region (needed for AWS, may break some S3-compatible APIs)
+    if [[ -n "${RCLONE_S3_REGION:-}" ]]; then
+      RCLONE_EXTRA_FLAGS+=(--s3-region="$RCLONE_S3_REGION")
     fi
 
+    # Optional: provider (set to "AWS" for Amazon, "Other" for MinIO/Wasabi/etc)
     if [[ -n "${RCLONE_S3_PROVIDER:-}" ]]; then
-    RCLONE_EXTRA_FLAGS+=(--s3-provider="$RCLONE_S3_PROVIDER")
+      RCLONE_EXTRA_FLAGS+=(--s3-provider="$RCLONE_S3_PROVIDER")
     fi
-    
+
+    # Optional: custom endpoint (e.g. for non-AWS S3 services)
+    if [[ -n "${RCLONE_S3_ENDPOINT:-}" ]]; then
+      RCLONE_EXTRA_FLAGS+=(--s3-endpoint="$RCLONE_S3_ENDPOINT")
+    fi
+
+    # Optional: storage class (e.g. STANDARD_IA, GLACIER)
     if [[ -n "${RCLONE_S3_STORAGE_CLASS:-}" ]]; then
-        RCLONE_EXTRA_FLAGS+=(--s3-storage-class="$RCLONE_S3_STORAGE_CLASS")
+      RCLONE_EXTRA_FLAGS+=(--s3-storage-class="$RCLONE_S3_STORAGE_CLASS")
     fi
 
+    # Optional: ACL (e.g. private, public-read)
     if [[ -n "${RCLONE_S3_ACL:-}" ]]; then
-        RCLONE_EXTRA_FLAGS+=(--s3-acl="$RCLONE_S3_ACL")
+      RCLONE_EXTRA_FLAGS+=(--s3-acl="$RCLONE_S3_ACL")
     fi
 
+    # Optional: server-side encryption (e.g. AES256 or aws:kms)
     if [[ -n "${RCLONE_S3_SERVER_SIDE_ENCRYPTION:-}" ]]; then
-        RCLONE_EXTRA_FLAGS+=(--s3-server-side-encryption="$RCLONE_S3_SERVER_SIDE_ENCRYPTION")
-    fi  
+      RCLONE_EXTRA_FLAGS+=(--s3-server-side-encryption="$RCLONE_S3_SERVER_SIDE_ENCRYPTION")
+    fi
     ;;
+
+
   *)
     logger -p user.err -t "$LOGGER_TAG" "Unsupported RCLONE_PROTO: $RCLONE_PROTO"
     exit 1
     ;;
+  
 esac
 
 # Upload the "current" backup
