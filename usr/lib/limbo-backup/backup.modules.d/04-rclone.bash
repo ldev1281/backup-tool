@@ -101,7 +101,6 @@ logger -p user.info -t "$LOGGER_TAG" "Uploading backup: $LOCAL_PATH_CURRENT → 
 
 rclone copyto "$LOCAL_PATH_CURRENT" "${RCLONE_REMOTE_BASE}/${REMOTE_PATH_CURRENT}" \
   "${RCLONE_EXTRA_FLAGS[@]}" \
-  -vv \
   --no-traverse
 
 #########################################################################
@@ -116,7 +115,6 @@ for SUFFIX in "$YEAR" "$MONTH" "$TODAY"; do
   logger -p user.info -t "$LOGGER_TAG" "Creating versioned copy: $REMOTE_PATH_VERSIONED"
   rclone copyto "${RCLONE_REMOTE_BASE}/${REMOTE_PATH_CURRENT}" "${RCLONE_REMOTE_BASE}/${REMOTE_PATH_VERSIONED}" \
     "${RCLONE_EXTRA_FLAGS[@]}" \
-    -vv \
     --no-traverse
 done
 
