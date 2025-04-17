@@ -7,4 +7,4 @@ Depends: bash, tar, gzip, gnupg, rclone, systemd, coreutils, rsync, openssh-clie
 Maintainer: Jordi Mock <mockjordi@gmail.com>
 Description: Modular backup system with pluggable tasks and modules
  A systemd-timer-driven backup tool that executes configurable backup tasks and applies modular post-processing.
- Supports pre/post commands, file inclusion/exclusion, SFTP uploads, and plugin-style module processing.
+ Supports pre/post commands, file inclusion/exclusion, SFTP uploads, S3 uploads, and plugin-style module processing.

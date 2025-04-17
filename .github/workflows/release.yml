@@ -26,9 +26,7 @@ jobs:
       run: |
         chmod +x DEBIAN/postinst
         chmod +x usr/bin/limbo-backup.bash
-        chmod +x usr/bin/limbo-restore.bash
         chmod -R +x usr/lib/limbo-backup/backup.modules.d/
-        chmod -R +x usr/lib/limbo-backup/restore.modules.d/
 
     - name: Build .deb package
       run: |
