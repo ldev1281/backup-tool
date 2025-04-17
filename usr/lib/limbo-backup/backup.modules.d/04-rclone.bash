@@ -28,7 +28,6 @@ else
   BACKUP_FILENAME_EXTENSION=".tar.gz"
   LOCAL_PATH_CURRENT="$TAR_ARTEFACTS_DIR/${BACKUP_NAME}${BACKUP_FILENAME_EXTENSION}"
 fi
-REMOTE_PATH_CURRENT="$RCLONE_REMOTE_PATH/${BACKUP_NAME}${BACKUP_FILENAME_EXTENSION}"
 
 #########################################################################
 
@@ -51,9 +50,12 @@ case "$RCLONE_PROTO" in
     : "${RCLONE_SFTP_PORT:?RCLONE_SFTP_PORT is not set}"
     : "${RCLONE_SFTP_USER:?RCLONE_SFTP_USER is not set}"
     : "${RCLONE_SFTP_PASS:?RCLONE_SFTP_PASS is not set}"
+    : "${RCLONE_SFTP_REMOTE_PATH:?RCLONE_SFTP_REMOTE_PATH is not set}"
 
     RCLONE_REMOTE_BASE=":sftp,host=${RCLONE_SFTP_HOST},user=${RCLONE_SFTP_USER},port=${RCLONE_SFTP_PORT}"
     RCLONE_EXTRA_FLAGS=(--sftp-pass="$(rclone obscure "$RCLONE_SFTP_PASS")")
+
+    REMOTE_PATH=$RCLONE_SFTP_REMOTE_PATH
     ;;
 
 
@@ -61,42 +63,24 @@ case "$RCLONE_PROTO" in
     : "${RCLONE_S3_BUCKET:?RCLONE_S3_BUCKET is not set}"
     : "${RCLONE_S3_KEY:?RCLONE_S3_KEY is not set}"
     : "${RCLONE_S3_SECRET:?RCLONE_S3_SECRET is not set}"
+    : "${RCLONE_S3_REMOTE_PATH:?RCLONE_S3_REMOTE_PATH is not set}"
 
-    RCLONE_REMOTE_BASE=":s3:${RCLONE_S3_BUCKET}"
-    RCLONE_EXTRA_FLAGS=(
-      --s3-access-key-id="$RCLONE_S3_KEY"
-      --s3-secret-access-key="$RCLONE_S3_SECRET"
-    )
+    # Build on-the-fly S3 remote
+    RCLONE_REMOTE_BASE=":s3"
+    RCLONE_REMOTE_BASE+=",provider=${RCLONE_S3_PROVIDER:-AWS}"
+    RCLONE_REMOTE_BASE+=",access_key_id=${RCLONE_S3_KEY}"
+    RCLONE_REMOTE_BASE+=",secret_access_key=${RCLONE_S3_SECRET}"
+    [[ -n "${RCLONE_S3_ENDPOINT:-}" ]] && RCLONE_REMOTE_BASE+=",endpoint=${RCLONE_S3_ENDPOINT}"
+    [[ -n "${RCLONE_S3_REGION:-}" ]] && RCLONE_REMOTE_BASE+=",region=${RCLONE_S3_REGION}"
+    RCLONE_REMOTE_BASE+=":${RCLONE_S3_BUCKET}/"
 
-    # Optional: region (needed for AWS, may break some S3-compatible APIs)
-    if [[ -n "${RCLONE_S3_REGION:-}" ]]; then
-      RCLONE_EXTRA_FLAGS+=(--s3-region="$RCLONE_S3_REGION")
-    fi
+    # Additional S3 flags
+    RCLONE_EXTRA_FLAGS=()
+    [[ -n "${RCLONE_S3_STORAGE_CLASS:-}" ]] && RCLONE_EXTRA_FLAGS+=(--s3-storage-class="$RCLONE_S3_STORAGE_CLASS")
+    [[ -n "${RCLONE_S3_ACL:-}" ]] && RCLONE_EXTRA_FLAGS+=(--s3-acl="$RCLONE_S3_ACL")
+    [[ -n "${RCLONE_S3_SERVER_SIDE_ENCRYPTION:-}" ]] && RCLONE_EXTRA_FLAGS+=(--s3-server-side-encryption="$RCLONE_S3_SERVER_SIDE_ENCRYPTION")
 
-    # Optional: provider (set to "AWS" for Amazon, "Other" for MinIO/Wasabi/etc)
-    if [[ -n "${RCLONE_S3_PROVIDER:-}" ]]; then
-      RCLONE_EXTRA_FLAGS+=(--s3-provider="$RCLONE_S3_PROVIDER")
-    fi
-
-    # Optional: custom endpoint (e.g. for non-AWS S3 services)
-    if [[ -n "${RCLONE_S3_ENDPOINT:-}" ]]; then
-      RCLONE_EXTRA_FLAGS+=(--s3-endpoint="$RCLONE_S3_ENDPOINT")
-    fi
-
-    # Optional: storage class (e.g. STANDARD_IA, GLACIER)
-    if [[ -n "${RCLONE_S3_STORAGE_CLASS:-}" ]]; then
-      RCLONE_EXTRA_FLAGS+=(--s3-storage-class="$RCLONE_S3_STORAGE_CLASS")
-    fi
-
-    # Optional: ACL (e.g. private, public-read)
-    if [[ -n "${RCLONE_S3_ACL:-}" ]]; then
-      RCLONE_EXTRA_FLAGS+=(--s3-acl="$RCLONE_S3_ACL")
-    fi
-
-    # Optional: server-side encryption (e.g. AES256 or aws:kms)
-    if [[ -n "${RCLONE_S3_SERVER_SIDE_ENCRYPTION:-}" ]]; then
-      RCLONE_EXTRA_FLAGS+=(--s3-server-side-encryption="$RCLONE_S3_SERVER_SIDE_ENCRYPTION")
-    fi
+    REMOTE_PATH="$RCLONE_S3_REMOTE_PATH"
     ;;
 
 
@@ -107,11 +91,20 @@ case "$RCLONE_PROTO" in
   
 esac
 
+
+#########################################################################
+
 # Upload the "current" backup
+REMOTE_PATH_CURRENT="${REMOTE_PATH}/${BACKUP_NAME}${BACKUP_FILENAME_EXTENSION}"
+
 logger -p user.info -t "$LOGGER_TAG" "Uploading backup: $LOCAL_PATH_CURRENT → $REMOTE_PATH_CURRENT"
-rclone copyto "$LOCAL_PATH_CURRENT" "$RCLONE_REMOTE_BASE:$REMOTE_PATH_CURRENT" \
+
+rclone copyto "$LOCAL_PATH_CURRENT" "${RCLONE_REMOTE_BASE}${REMOTE_PATH_CURRENT}" \
   "${RCLONE_EXTRA_FLAGS[@]}" \
+  -vv \
   --no-traverse
+
+#########################################################################
 
 # Versioned paths based on date
 TODAY=$(date +'%Y-%m-%d')
@@ -119,10 +112,11 @@ MONTH=$(date +'%Y-%m')
 YEAR=$(date +'%Y')
 
 for SUFFIX in "$YEAR" "$MONTH" "$TODAY"; do
-  REMOTE_PATH_VERSIONED="$RCLONE_REMOTE_PATH/${BACKUP_NAME}.${SUFFIX}${BACKUP_FILENAME_EXTENSION}"
+  REMOTE_PATH_VERSIONED="$REMOTE_PATH/${BACKUP_NAME}.${SUFFIX}${BACKUP_FILENAME_EXTENSION}"
   logger -p user.info -t "$LOGGER_TAG" "Creating versioned copy: $REMOTE_PATH_VERSIONED"
-  rclone copyto "$RCLONE_REMOTE_BASE:$REMOTE_PATH_CURRENT" "$RCLONE_REMOTE_BASE:$REMOTE_PATH_VERSIONED" \
+  rclone copyto "${RCLONE_REMOTE_BASE}${REMOTE_PATH_CURRENT}" "${RCLONE_REMOTE_BASE}${REMOTE_PATH_VERSIONED}" \
     "${RCLONE_EXTRA_FLAGS[@]}" \
+    -vv \
     --no-traverse
 done
 

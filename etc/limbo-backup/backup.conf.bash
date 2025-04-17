@@ -37,11 +37,10 @@ GPG_FINGERPRINT=""
 # 1 = enabled, 0 = disabled
 RCLONE_ENABLED=0
 
-# Remote path where backups will be stored on the target server (shared across all backends)
-RCLONE_REMOTE_PATH="/backups"
 
 # sftp-protocol settings
 #RCLONE_PROTO="sftp"
+#RCLONE_SFTP_REMOTE_PATH="/backups"
 #RCLONE_SFTP_HOST="your.remote.host"
 #RCLONE_SFTP_PORT="22"
 #RCLONE_SFTP_USER="backupuser"
@@ -50,7 +49,8 @@ RCLONE_REMOTE_PATH="/backups"
 
 # s3-protocol settings
 #RCLONE_PROTO="s3"
-#RCLONE_S3_ENDPOINT=""
+#RCLONE_S3_REMOTE_PATH="backups"
+#RCLONE_S3_ENDPOINT="s3.example.com"
 #RCLONE_S3_BUCKET=""
 #RCLONE_S3_KEY=""
 #RCLONE_S3_SECRET=""
