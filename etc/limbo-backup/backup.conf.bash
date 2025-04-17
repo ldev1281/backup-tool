@@ -40,7 +40,7 @@ RCLONE_ENABLED=0
 
 # sftp-protocol settings
 #RCLONE_PROTO="sftp"
-#RCLONE_SFTP_REMOTE_PATH="/backups"
+#RCLONE_SFTP_REMOTE_PATH="backups"
 #RCLONE_SFTP_HOST="your.remote.host"
 #RCLONE_SFTP_PORT="22"
 #RCLONE_SFTP_USER="backupuser"
