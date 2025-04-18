@@ -2,8 +2,6 @@
 
 A simple and universal backup tool for Docker Compose-based projects.
 
----
-
 ## What the backup contains
 
 The raw backup created by the `rsync` module is stored under:
@@ -27,8 +25,6 @@ This directory is the **source** for archiving, encryption, and upload. It inclu
 │   └── ...                                      # Files and directories from INCLUDE_PATHS, with full path preserved
 ```
 
----
-
 ### Explanation
 
 - **`.limbo-backup/`**  
@@ -37,7 +33,6 @@ This directory is the **source** for archiving, encryption, and upload. It inclu
 - **`task-name/`**  
   The directory name is derived from the filename `NN-task-name.conf.bash`. It contains all files defined by `INCLUDE_PATHS`, copied with full path preservation (`rsync -aR`).
 
----
 
 ### Example
 
