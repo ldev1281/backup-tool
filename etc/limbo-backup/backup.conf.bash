@@ -37,15 +37,13 @@ GPG_FINGERPRINT=""
 # 1 = enabled, 0 = disabled
 RCLONE_ENABLED=0
 
-
 # sftp-protocol settings
 #RCLONE_PROTO="sftp"
 #RCLONE_SFTP_REMOTE_PATH="backups"
 #RCLONE_SFTP_HOST="your.remote.host"
 #RCLONE_SFTP_PORT="22"
 #RCLONE_SFTP_USER="backupuser"
-#RCLONE_SFTP_PASS="your_encrypted_or_app_password"
-
+#RCLONE_SFTP_PASS="secret_password"
 
 # s3-protocol settings
 #RCLONE_PROTO="s3"

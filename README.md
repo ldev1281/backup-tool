@@ -96,8 +96,6 @@ sudo apt-get install -y \
 sudo dpkg -i limbo-backup-tool_0.1_all.deb
 ```
 
----
-
 ### 4. Post-installation check
 
 To confirm that the systemd timer is active:
