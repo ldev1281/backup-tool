@@ -1,8 +1,68 @@
 # Backup Tool
 
-A simple and universal backup & restore tool for Docker Compose-based projects.
+A simple and universal backup tool for Docker Compose-based projects.
 
 ---
+
+## What the backup contains
+
+The raw backup created by the `rsync` module is stored under:
+
+```
+/var/lib/limbo-backup/artefacts/backup-rsync/
+```
+
+This directory is the **source** for archiving, encryption, and upload. It includes:
+
+```
+/
+├── .limbo-backup/                               # Internal metadata snapshot (not part of user data)
+│   ├── etc/
+│   │   └── limbo-backup/                        # Backup of the full configuration directory
+│   │       ├── rsync.conf.d/
+│   │       │   └── 01-task-name.conf.bash       # Task definition used during backup
+│   │       └── backup.conf.bash                 # Global configuration at the time of backup
+│   └── usr/share/limbo-backup/VERSION           # Version of the backup tool used to create this backup
+├── task-name/                                   # Data from the backup task named "task-name"
+│   └── ...                                      # Files and directories from INCLUDE_PATHS, with full path preserved
+```
+
+---
+
+### Explanation
+
+- **`.limbo-backup/`**  
+  This directory contains internal metadata used for recovery and audit. It ensures that the backup can be restored exactly, even if configuration files change in the future.
+
+- **`task-name/`**  
+  The directory name is derived from the filename `NN-task-name.conf.bash`. It contains all files defined by `INCLUDE_PATHS`, copied with full path preservation (`rsync -aR`).
+
+---
+
+### Example
+
+If your task file is named:
+
+```
+01-outline.conf.bash
+```
+
+and contains:
+
+```bash
+INCLUDE_PATHS=(
+  "/docker/outline"
+)
+```
+
+Then the backup directory will contain:
+
+```
+/outline/
+└── docker/outline/...
+```
+
+--- 
 
 ## Installation
 
