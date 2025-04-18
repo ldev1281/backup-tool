@@ -31,7 +31,8 @@ This directory is the **source** for archiving, encryption, and upload. It inclu
   This directory contains internal metadata used for recovery and audit. It ensures that the backup can be restored exactly, even if configuration files change in the future.
 
 - **`task-name/`**  
-  The directory name is derived from the filename `NN-task-name.conf.bash`. It contains all files defined by `INCLUDE_PATHS`, copied with full path preservation (`rsync -aR`).
+  The directory name is derived from the filename `NN-task-name.conf.bash`. It contains all files defined by `INCLUDE_PATHS`, copied with full path preservation (`rsync -aR`).  
+  See [Task definitions](#task-definitions) in the **Configuration** section for details.
 
 
 ### Example
@@ -121,7 +122,6 @@ Modify values according to your environment.
 
 > This file is treated as a conffile: it will not be overwritten or removed during package upgrades or uninstallation.
 
----
 
 ### Task definitions
 
@@ -153,9 +153,7 @@ All tasks are executed **in alphanumeric order**, based on the `NN-` prefix.
 
 Only files that match this pattern and are executable will be processed.
 
----
-
-### File format
+### Task file format
 
 Each task file should define the following variables:
 
@@ -175,22 +173,6 @@ EXCLUDE_PATHS=(
 
 > You can define any number of `INCLUDE_PATHS` and `EXCLUDE_PATHS`.  
 > `CMD_BEFORE_BACKUP` and `CMD_AFTER_BACKUP` are optional.
-
----
-
-## Uninstall
-
-To remove the package but keep the configuration:
-
-```bash
-sudo dpkg -r limbo-backup-tool
-```
-
-To completely purge the package and its configuration:
-
-```bash
-sudo dpkg --purge limbo-backup-tool
-```
 
 ---
 
@@ -223,3 +205,18 @@ journalctl -u limbo-backup.timer
 journalctl -u limbo-backup.service
 ```
 
+---
+
+## Uninstall
+
+To remove the package but keep the configuration:
+
+```bash
+sudo dpkg -r limbo-backup
+```
+
+To completely purge the package and its configuration:
+
+```bash
+sudo dpkg --purge limbo-backup
+```
