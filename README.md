@@ -194,7 +194,6 @@ This will:
 
 Logs are written to `journalctl` via systemd when executed as a service.
 
----
 
 ### Check logs
 
