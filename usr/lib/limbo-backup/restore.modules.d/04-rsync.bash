@@ -17,6 +17,12 @@ logger -p user.info -t "$LOGGER_TAG" "Starting RSYNC module execution..."
 # Find all matching config files and sort by name
 mapfile -t RSYNC_CONFIG_FILES < <(find "$RSYNC_CONFIG_DIR" -type f -name '[0-9][0-9]-*.conf.bash' | sort)
 
+# Restore all artefacts or particular
+if [[ ${#RESTORE_APPS[@]} -eq 0 ]]; then
+  logger -p user.err -t "$LOGGER_TAG" "RESTORE_APPS is not set in restore.conf.bash"
+  exit 1
+fi
+
 declare RESTORE_ARTEFACT=0
 
 for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
@@ -25,10 +31,10 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
   ARTEFACT_NAME="${ARTEFACT_NAME%.conf.bash}"       # Remove .conf.bash
   ARTEFACT_PATH="$RSYNC_ARTEFACTS_DIR/$ARTEFACT_NAME"
 
-  if [[ ${#RESTORE_APPS[@]} -gt 0 ]]; then
+  if [[ "${RESTORE_APPS[0]}" != "*" ]]; then
     RESTORE_ARTEFACT=0
-    for app in "${RESTORE_APPS[@]}"; do
-      if [[ "$app" == "$ARTEFACT_NAME" ]]; then
+    for RESTORE_APP in "${RESTORE_APPS[@]}"; do
+      if [[ "$RESTORE_APP" == "$ARTEFACT_NAME" ]]; then
         RESTORE_ARTEFACT=1
         break
       fi
@@ -38,8 +44,6 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
       logger -p user.info -t "$LOGGER_TAG" "Skipping restore for: $ARTEFACT_NAME"    
       continue
     fi
-  else
-    logger -p user.err -t "$LOGGER_TAG" "RESTORE_APPS is not set in restore.conf.bash"
   fi
 
   # Reset config variables
