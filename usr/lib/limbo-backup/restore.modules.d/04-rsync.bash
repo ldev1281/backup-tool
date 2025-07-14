@@ -14,6 +14,11 @@ logger -p user.info -t "$LOGGER_TAG" "Starting RSYNC module execution..."
 
 #########################################################################
 
+# create folders
+mkdir -p "$VERSIONS_ARTEFACTS_DIR"
+
+#########################################################################
+
 # Find all matching config files and sort by name
 mapfile -t RSYNC_CONFIG_FILES < <(find "$RSYNC_CONFIG_DIR" -type f -name '[0-9][0-9]-*.conf.bash' | sort)
 
@@ -59,25 +64,27 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
     eval "$CMD_BEFORE_RESTORE"
   fi
 
-  RSYNC_OPTS=(-aR)
+  RSYNC_OPTS=(-aR --delete)
 
   if [[ -z "$RESTORE_OVERWRITE" ]]; then
-    RSYNC_OPTS+=("--backup" "--suffix=$(date +%Y%m%d_%H%M%S).bak")
+    RSYNC_OPTS+=("--backup" "--suffix=$(date +%Y%m%d_%H%M%S).bak" "--backup-dir=$VERSIONS_ARTEFACTS_DIR")
   fi
+
+  pushd "$ARTEFACT_PATH" > /dev/null
 
   for INCLUDE_PATH in "${INCLUDE_PATHS[@]}"; do
     RELATIVE_PATH="${INCLUDE_PATH#/}"
-    SRC_PATH="$ARTEFACT_PATH/$RELATIVE_PATH"
-    DST_PATH="/"
 
-    [[ -e "$SRC_PATH" ]] || {
-      logger -p user.warn -t "$LOGGER_TAG" "Skip missing: $SRC_PATH"
+    if [[ ! -e "$RELATIVE_PATH" ]]; then
+      logger -p user.warn -t "$LOGGER_TAG" "Skip missing: $ARTEFACT_PATH/$RELATIVE_PATH"
       continue
-    }
-    logger -p user.info -t "$LOGGER_TAG" "Syncing: $SRC_PATH -> $DST_PATH"
-    rsync "${RSYNC_OPTS[@]}" "$SRC_PATH" "$DST_PATH"  
+    fi
+
+    logger -p user.info -t "$LOGGER_TAG" "Syncing: $RELATIVE_PATH -> /"
+    rsync "${RSYNC_OPTS[@]}" "$RELATIVE_PATH" /
   done
 
+  popd > /dev/null
 
   if [[ -n "${CMD_AFTER_RESTORE:-}" ]]; then
     logger -p user.info -t "$LOGGER_TAG" "Running CMD_AFTER_RESTORE for: $ARTEFACT_NAME"

@@ -20,6 +20,9 @@ RSYNC_ARTEFACTS_DIR="$ARTEFACTS_DIR/restore-rsync"
 # Directory where tar module stores uncompressed backup archives (.tar).
 TAR_ARTEFACTS_DIR="$ARTEFACTS_DIR/restore-tar"
 
+# Directory where rsync module backups the local files and dirs if they are missed in the backup archive and RESTORE_OVERWRITE is empty.
+VERSIONS_ARTEFACTS_DIR="$ARTEFACTS_DIR/restore-versions"
+
 # === gpg module settings ===
 
 # Enables or disables the gpg module.
