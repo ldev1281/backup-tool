@@ -1,6 +1,6 @@
 # Backup Tool
 
-A simple and universal backup tool for Docker Compose-based projects.
+A simple and universal backup and restore tool for Docker Compose-based projects.
 
 ## What the backup contains
 
@@ -19,7 +19,8 @@ This directory is the **source** for archiving, encryption, and upload. It inclu
 │   │   └── limbo-backup/                        # Backup of the full configuration directory
 │   │       ├── rsync.conf.d/
 │   │       │   └── 01-task-name.conf.bash       # Task definition used during backup
-│   │       └── backup.conf.bash                 # Global configuration at the time of backup
+│   │       └── backup.conf.bash                 # Global backup configuration at the time of backup
+│   │       └── restore.conf.bash                # Global restore configuration at the time of backup
 │   └── usr/share/limbo-backup/VERSION           # Version of the backup tool used to create this backup
 ├── task-name/                                   # Data from the backup task named "task-name"
 │   └── ...                                      # Files and directories from INCLUDE_PATHS, with full path preserved
@@ -114,6 +115,7 @@ Global settings are defined in:
 
 ```
 /etc/limbo-backup/backup.conf.bash
+/etc/limbo-backup/restore.conf.bash
 ```
 
 Modify values according to your environment.
@@ -129,7 +131,7 @@ Individual backup tasks are defined as configuration files in:
 /etc/limbo-backup/rsync.conf.d/
 ```
 
-Each file describes one backup job and **must follow the naming convention**:
+Each file describes one backup/restore job and **must follow the naming convention**:
 
 ```
 NN-name.conf.bash
@@ -158,6 +160,8 @@ Each task file should define the following variables:
 ```bash
 CMD_BEFORE_BACKUP="docker compose --project-directory /docker/your-app stop"
 CMD_AFTER_BACKUP="docker compose --project-directory /docker/your-app start"
+CMD_BEFORE_RESTORE="docker compose --project-directory /docker/your-app stop"
+CMD_AFTER_RESTORE="docker compose --project-directory /docker/your-app start"
 
 INCLUDE_PATHS=(
   "/docker/your-app"
@@ -170,11 +174,11 @@ EXCLUDE_PATHS=(
 ```
 
 > You can define any number of `INCLUDE_PATHS` and `EXCLUDE_PATHS`.  
-> `CMD_BEFORE_BACKUP` and `CMD_AFTER_BACKUP` are optional.
+> `CMD_BEFORE_BACKUP`, `CMD_AFTER_BACKUP`, `CMD_BEFORE_RESTORE` and `CMD_AFTER_RESTORE` are optional.
 
 ---
 
-## Bakup usage
+## Backup usage
 
 ### Manual backup
 
@@ -201,7 +205,44 @@ To inspect logs of the systemd timer or service:
 journalctl -u limbo-backup.timer
 journalctl -u limbo-backup.service
 ```
+---
 
+## Restore usage
+
+### Manual restore
+
+To run all configured restore tasks immediately:
+
+```bash
+/usr/bin/flock -n /run/limbo-backup.lock -c true && limbo-restore.bash
+```
+
+This will:
+
+1. Set lock to prevent simultaneous execution
+2. Load global configuration from `/etc/limbo-backup/restore.conf.bash`
+3. Execute all task files from `/etc/limbo-backup/rsync.conf.d/` in alphanumeric order
+4. Apply all enabled plugins (e.g., rsync, tar, gpg, rclone)
+
+Logs are written to `journalctl` via systemd when executed as a service.
+
+### Restore Options
+
+| Option         | Required | Description | Example |
+|----------------|----------|-------------|---------|
+| `--date`       | Optional | Specify the date of the backup to restore. Accepts formats `YYYY`, `YYYY-MM`, or `YYYY-MM-DD`. | `--date 2025-07-14` |
+| `--apps`       | Optional | Specify a comma-separated list of applications to restore from the backup. By default, all applications will be restored. | `--apps keycloak,wekan` |
+| `--overwrite`  | Optional | Forcefully overwrite files during restore and delete files that do not exist in the backup. By default, all files to be overwritten or deleted are first backed up to the `VERSIONS_ARTEFACTS_DIR` directory. | `--overwrite` |
+
+
+### Check logs
+
+To inspect logs of the systemd timer or service:
+
+```bash
+journalctl -u limbo-backup.timer
+journalctl -u limbo-backup.service
+```
 ---
 
 ## Uninstall
