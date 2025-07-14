@@ -1,1 +1,2 @@
 /etc/limbo-backup/backup.conf.bash
+/etc/limbo-backup/restore.conf.bash
