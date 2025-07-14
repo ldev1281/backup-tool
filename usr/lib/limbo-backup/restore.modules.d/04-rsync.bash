@@ -67,7 +67,7 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
   RSYNC_OPTS=(-aR --delete)
 
   if [[ -z "$RESTORE_OVERWRITE" ]]; then
-    RSYNC_OPTS+=("--backup" "--suffix=.$(date +%Y%m%d_%H%M%S).bak" "--backup-dir=$VERSIONS_ARTEFACTS_DIR")
+    RSYNC_OPTS+=("--backup" "--backup-dir=$VERSIONS_ARTEFACTS_DIR")
   fi
 
   pushd "$ARTEFACT_PATH" > /dev/null

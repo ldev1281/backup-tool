@@ -23,7 +23,7 @@ TAR_ARTEFACTS_DIR="$ARTEFACTS_DIR/restore-tar"
 # TAR_ARTEFACTS_DIR="$ARTEFACTS_DIR/backup-tar"
 
 # Directory where rsync module backups the local files and dirs if they are missed in the backup archive and RESTORE_OVERWRITE is empty.
-VERSIONS_ARTEFACTS_DIR="$ARTEFACTS_DIR/restore-versions"
+VERSIONS_ARTEFACTS_DIR="$ARTEFACTS_DIR/restore-versions/$(date +%Y%m%d_%H%M%S)/"
 
 # === gpg module settings ===
 
