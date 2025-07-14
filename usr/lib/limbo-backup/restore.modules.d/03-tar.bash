@@ -23,6 +23,11 @@ logger -p user.info -t "$LOGGER_TAG" "Starting TAR module execution..."
 
 #########################################################################
 
+# create folders
+mkdir -p "$RSYNC_ARTEFACTS_DIR"
+
+#########################################################################
+
 # Clear the destination directory
 logger -p user.info -t "$LOGGER_TAG" "Clearing the destination directory: $RSYNC_ARTEFACTS_DIR"
 rm -rf "$RSYNC_ARTEFACTS_DIR"/* "$RSYNC_ARTEFACTS_DIR"/.??* 2>/dev/null || true
