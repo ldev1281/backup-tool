@@ -60,16 +60,20 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
   fi
 
   RSYNC_OPTS=(-aR)
- 
+
+  if [[ -z "$RESTORE_OVERWRITE" ]]; then
+    RSYNC_OPTS+=("--backup" "--suffix=$(date +%Y%m%d_%H%M%S).bak")
+  fi
+
   for INCLUDE_PATH in "${INCLUDE_PATHS[@]}"; do
     RELATIVE_PATH="${INCLUDE_PATH#/}"
     SRC_PATH="$ARTEFACT_PATH/$RELATIVE_PATH"
-    DST_PATH="$INCLUDE_PATH"
+    DST_PATH="/"
 
-    if [[ -z "$RESTORE_OVERWRITE" ]]; then
-      RSYNC_OPTS+=("--backup" "--suffix=$(date +%Y%m%d_%H%M%S).bak")
-    fi
-
+    [[ -e "$SRC_PATH" ]] || {
+      logger -p user.warn -t "$LOGGER_TAG" "Skip missing: $SRC_PATH"
+      continue
+    }
     logger -p user.info -t "$LOGGER_TAG" "Syncing: $SRC_PATH -> $DST_PATH"
     rsync "${RSYNC_OPTS[@]}" "$SRC_PATH" "$DST_PATH"  
   done
