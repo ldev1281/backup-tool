@@ -63,8 +63,8 @@ fi
 #########################################################################
 
 # Verify that input file exists
-if [[ ! -f "$TARGET_DIR/$BACKUP_NAME" ]]; then
-  logger -p user.err -t "$LOGGER_TAG" "Backup file not found: $TARGET_DIR/$BACKUP_NAME"
+if [[ ! -f "$TARGET_PATH" ]]; then
+  logger -p user.err -t "$LOGGER_TAG" "Backup file not found: $TARGET_PATH"
   exit 1
 fi
 
