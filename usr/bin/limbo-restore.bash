@@ -11,7 +11,7 @@ show_help() {
   echo ""
   echo "Options:"
   echo "  --apps app1,app2      Comma-separated list of apps to restore (optional; default is restore all apps)"
-  echo "  --overwrite           Overwrite existing files during restore (optional; default is false)"
+  echo "  --overwrite           Force overwrite existing files and delete missed files during restore (optional; default is to copy every file being changed/deleted to VERSIONS_ARTEFACTS_DIR)"
   echo "  --help                Show this help message and exit"
   echo ""
   echo "Arguments:"
