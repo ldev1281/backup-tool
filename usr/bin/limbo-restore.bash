@@ -6,6 +6,7 @@ source /etc/limbo-backup/restore.conf.bash
 
 # Show options and arguments
 show_help() {
+  echo ""
   echo "Usage: $0 [OPTIONS] <backup_archive_path>"
   echo ""
   echo "Options:"
@@ -15,7 +16,8 @@ show_help() {
   echo ""
   echo "Arguments:"
   echo "  backup_archive_path   Path to the backup archive to restore (required). Supported schemas are: https://, http://, file:// or local filesystem path"
-  echo "                        (e.g.  https://s3-server/backup.tar.gz, file:///tmp/backup.tar.gz.gpg, /tmp/archive.tar.gz)"
+  echo "                        (e.g. https://s3-server/backup.tar.gz, file:///tmp/backup.tar.gz.gpg, /tmp/archive.tar.gz)"
+  echo ""  
 }
 
 # Parse command line arguments
