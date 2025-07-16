@@ -53,7 +53,7 @@ done
 # Check for required positional argument
 if [[ -z "${BACKUP_PATH:-}" ]]; then
   echo "Error: backup_archive_path is required."
-  logger -p user.err -t "$LOGGER_TAG" "Error: backup_path is required."
+  logger -p user.err -t "$LOGGER_TAG" "Error: backup_archive_path is required."
   show_help
   exit 1
 fi
