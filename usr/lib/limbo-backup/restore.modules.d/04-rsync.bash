@@ -9,7 +9,7 @@ source /etc/limbo-backup/restore.conf.bash
 
 #
 METADATA_DIR=".limbo-backup"
-METADATA_INCLUDE_PATHS=("/etc")
+METADATA_INCLUDE_PATHS=("$CONFIG_DIR")
 #########################################################################
 
 #
