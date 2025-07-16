@@ -222,7 +222,7 @@ This will:
 1. Set lock to prevent simultaneous execution
 2. Load global configuration from `/etc/limbo-backup/restore.conf.bash`
 3. Execute all task files from `/etc/limbo-backup/rsync.conf.d/` in alphanumeric order
-4. Apply all enabled plugins (e.g., rsync, tar, gpg, rclone)
+4. Apply all enabled plugins (e.g., rsync, tar, gpg, curl)
 
 Logs are written to `journalctl` via systemd when executed as a service.
 
