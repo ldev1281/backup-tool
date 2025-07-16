@@ -214,7 +214,7 @@ journalctl -u limbo-backup.service
 To run all configured restore tasks immediately:
 
 ```bash
-/usr/bin/flock -n /run/limbo-backup.lock -c true && limbo-restore.bash
+sudo limbo-restore.bash [OPTIONS] <backup_archive_path>
 ```
 
 This will:
@@ -226,13 +226,16 @@ This will:
 
 Logs are written to `journalctl` via systemd when executed as a service.
 
-### Restore Options
+### Restore Options and Arguments
 
 | Option         | Required | Description | Example |
 |----------------|----------|-------------|---------|
-| `--date`       | Optional | Specify the date of the backup to restore. Accepts formats `YYYY`, `YYYY-MM`, or `YYYY-MM-DD`. | `--date 2025-07-14` |
 | `--apps`       | Optional | Specify a comma-separated list of applications to restore from the backup. By default, all applications will be restored. | `--apps keycloak,wekan` |
 | `--overwrite`  | Optional | Forcefully overwrite files during restore and delete files that do not exist in the backup. By default, all files to be overwritten or deleted are first backed up to the `VERSIONS_ARTEFACTS_DIR` directory. | `--overwrite` |
+
+| Argument       | Required | Description | Example |
+|----------------|----------|-------------|---------|
+| `backup_archive_path` | Yes | Path to the backup archive to restore. Supported schemas are: https://, http://, file:// or local filesystem path | `https://s3-server/backup.tar.gz`<br> `file:///tmp/backup.tar.gz.gpg`<br>`/tmp/archive.tar.gz` |
 
 
 ### Check logs

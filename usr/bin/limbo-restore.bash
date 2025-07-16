@@ -58,6 +58,16 @@ if [[ -z "${BACKUP_PATH:-}" ]]; then
   exit 1
 fi
 
+# Check for already running backup or restore process
+LOCKFILE="/run/limbo-backup.lock"
+exec 9>"$LOCKFILE"
+
+if ! flock -n 9; then
+  echo "limbo-backup or limbo-restore is already running." >&2
+  logger -p user.err -t "$LOGGER_TAG" "limbo-backup or limbo-restore is already running."
+  exit 1
+fi
+
 # Directory containing all backup modules
 MODULES_DIR="/lib/limbo-backup/restore.modules.d"
 
