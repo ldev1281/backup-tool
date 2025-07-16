@@ -4,25 +4,57 @@ set -euo pipefail
 source /usr/lib/limbo-backup/restore.defaults.bash
 source /etc/limbo-backup/restore.conf.bash
 
+# Show options and arguments
+show_help() {
+  echo "Usage: $0 [OPTIONS] <backup_archive_path>"
+  echo ""
+  echo "Options:"
+  echo "  --apps app1,app2      Comma-separated list of apps to restore (optional; default is restore all apps)"
+  echo "  --overwrite           Overwrite existing files during restore (optional; default is false)"
+  echo "  --help                Show this help message and exit"
+  echo ""
+  echo "Arguments:"
+  echo "  backup_archive_path   Path to the backup archive to restore (required). Supported schemas are: https://, http://, file:// or local filesystem path"
+  echo "                        (e.g.  https://s3-server/backup.tar.gz, file:///tmp/backup.tar.gz.gpg, /tmp/archive.tar.gz)"
+}
+
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
-    key="$1"
+  key="$1"
 
-    case $key in
-        --apps)
-            IFS=',' read -ra RESTORE_APPS <<< "$2"
-            shift 2
-            ;;
-        --overwrite)
-            RESTORE_OVERWRITE="1"
-            shift
-            ;;
-        *)
-            export BACKUP_PATH="$1"
-            shift
-            ;;
-    esac
+  case $key in
+  --help)
+    show_help
+    exit 0
+    ;;
+  --apps)
+    IFS=',' read -ra RESTORE_APPS <<<"$2"
+    shift 2
+    ;;
+  --overwrite)
+    RESTORE_OVERWRITE="1"
+    shift
+    ;;
+  -*)
+    echo "Unknown option: $1"
+    logger -p user.err -t "$LOGGER_TAG" "Unknown option: $1"
+    show_help
+    exit 1
+    ;;
+  *)
+    export BACKUP_PATH="$1"
+    shift
+    ;;
+  esac
 done
+
+# Check for required positional argument
+if [[ -z "${BACKUP_PATH:-}" ]]; then
+  echo "Error: backup_archive_path is required."
+  logger -p user.err -t "$LOGGER_TAG" "Error: backup_path is required."
+  show_help
+  exit 1
+fi
 
 # Directory containing all backup modules
 MODULES_DIR="/lib/limbo-backup/restore.modules.d"
@@ -56,7 +88,7 @@ for MODULE in "${MODULES[@]}"; do
   fi
   END_TIME=$(date +%s)
   DURATION=$((END_TIME - START_TIME))
-  logger -p user.debug -t "$LOGGER_TAG" "Module $MODULE_NAME completed in ${DURATION}s"    
+  logger -p user.debug -t "$LOGGER_TAG" "Module $MODULE_NAME completed in ${DURATION}s"
 
 done
 
