@@ -9,12 +9,6 @@ while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
-        --date)
-            DATE_VALUE="$2"
-            shift
-            BACKUP_NAME="${BACKUP_NAME}.${DATE_VALUE}"
-            shift
-            ;;
         --apps)
             IFS=',' read -ra RESTORE_APPS <<< "$2"
             shift 2
@@ -24,8 +18,8 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         *)
-            echo "Unknown option: $1"
-            exit 1
+            BACKUP_PATH="$1"
+            shift
             ;;
     esac
 done

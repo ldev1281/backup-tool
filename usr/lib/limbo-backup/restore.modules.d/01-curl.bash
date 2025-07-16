@@ -1,0 +1,70 @@
+#!/bin/bash
+set -euo pipefail
+
+#########################################################################
+
+# Load global and user configuration
+source /usr/lib/limbo-backup/restore.defaults.bash
+source /etc/limbo-backup/restore.conf.bash
+
+#########################################################################
+
+#
+logger -p user.info -t "$LOGGER_TAG" "Starting curl module..."
+
+#########################################################################
+
+#
+BACKUP_NAME=$(basename "${BACKUP_PATH%%\?*}")
+
+# Select destination folder using the file extension
+if [[ "$BACKUP_NAME" == *.tar.gz.gpg ]]; then
+  if [[ "${GPG_ENABLED:-0}" -eq 0 ]]; then
+    logger -p user.err -t "$LOGGER_TAG" "$BACKUP_FILENAME is a GPG-encrypted archive but GPG module is disabled in the config."
+    exit 1
+  else
+    TARGET_DIR="$GPG_ARTEFACTS_DIR"
+  fi
+elif [[ "$BACKUP_NAME" == *.tar.gz ]]; then
+  TARGET_DIR="$TAR_ARTEFACTS_DIR"
+else
+  logger -p user.err -t "$LOGGER_TAG" "Unsupported archive filename extension: $BACKUP_NAME"
+  exit 1
+fi
+
+#########################################################################
+
+# create folders
+
+mkdir -p "$TARGET_DIR"
+
+#########################################################################
+
+# Download or copy file
+
+TARGET_PATH="$TARGET_DIR/$BACKUP_NAME"
+
+if [[ "$BACKUP_PATH" == http://* || "$BACKUP_PATH" == https://* || "$BACKUP_PATH" == file://* ]]; then
+  logger -p user.info -t "$LOGGER_TAG" "Downloading backup: $BACKUP_PATH → $TARGET_PATH"
+  curl -fSL --silent --show-error "$BACKUP_PATH" -o "$TARGET_PATH" || {
+    logger -p user.err -t "$LOGGER_TAG" "Error during downloading backup: $BACKUP_PATH → $TARGET_PATH"
+    exit 1
+  }
+else
+  logger -p user.info -t "$LOGGER_TAG" "Copying backup: $BACKUP_PATH → $TARGET_PATH"
+  cp "$BACKUP_PATH" "$TARGET_PATH" || {
+    logger -p user.err -t "$LOGGER_TAG" "Error during copying backup: $BACKUP_PATH → $TARGET_PATH"
+    exit 1
+  }
+fi
+
+#########################################################################
+
+# Verify that input file exists
+if [[ ! -f "$TARGET_DIR/$BACKUP_NAME" ]]; then
+  logger -p user.err -t "$LOGGER_TAG" "Backup file not found: $TARGET_DIR/$BACKUP_NAME"
+  exit 1
+fi
+
+#
+logger -p user.info -t "$LOGGER_TAG" "curl module finished successfully."
