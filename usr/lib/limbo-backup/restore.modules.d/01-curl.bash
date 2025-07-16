@@ -24,9 +24,11 @@ if [[ "$REMOTE_BACKUP_NAME" == *.tar.gz.gpg ]]; then
     exit 1
   else
     TARGET_DIR="$GPG_ARTEFACTS_DIR"
+    TARGET_EXT=".tar.gz.gpg"
   fi
 elif [[ "$REMOTE_BACKUP_NAME" == *.tar.gz ]]; then
   TARGET_DIR="$TAR_ARTEFACTS_DIR"
+  TARGET_EXT=".tar.gz"
 else
   logger -p user.err -t "$LOGGER_TAG" "Unsupported archive filename extension: $REMOTE_BACKUP_NAME"
   exit 1
@@ -42,7 +44,7 @@ mkdir -p "$TARGET_DIR"
 
 # Download or copy file
 
-TARGET_PATH="$TARGET_DIR/$BACKUP_NAME"
+TARGET_PATH="$TARGET_DIR/${BACKUP_NAME}${TARGET_EXT}"
 
 if [[ "$BACKUP_PATH" == http://* || "$BACKUP_PATH" == https://* || "$BACKUP_PATH" == file://* ]]; then
   logger -p user.info -t "$LOGGER_TAG" "Downloading backup: $BACKUP_PATH → $TARGET_PATH"
