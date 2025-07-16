@@ -15,20 +15,20 @@ logger -p user.info -t "$LOGGER_TAG" "Starting curl module..."
 #########################################################################
 
 #
-BACKUP_NAME=$(basename "${BACKUP_PATH%%\?*}")
+REMOTE_BACKUP_NAME=$(basename "${BACKUP_PATH%%\?*}")
 
 # Select destination folder using the file extension
-if [[ "$BACKUP_NAME" == *.tar.gz.gpg ]]; then
+if [[ "$REMOTE_BACKUP_NAME" == *.tar.gz.gpg ]]; then
   if [[ "${GPG_ENABLED:-0}" -eq 0 ]]; then
-    logger -p user.err -t "$LOGGER_TAG" "$BACKUP_FILENAME is a GPG-encrypted archive but GPG module is disabled in the config."
+    logger -p user.err -t "$LOGGER_TAG" "$REMOTE_BACKUP_NAME is a GPG-encrypted archive but GPG module is disabled in the config."
     exit 1
   else
     TARGET_DIR="$GPG_ARTEFACTS_DIR"
   fi
-elif [[ "$BACKUP_NAME" == *.tar.gz ]]; then
+elif [[ "$REMOTE_BACKUP_NAME" == *.tar.gz ]]; then
   TARGET_DIR="$TAR_ARTEFACTS_DIR"
 else
-  logger -p user.err -t "$LOGGER_TAG" "Unsupported archive filename extension: $BACKUP_NAME"
+  logger -p user.err -t "$LOGGER_TAG" "Unsupported archive filename extension: $REMOTE_BACKUP_NAME"
   exit 1
 fi
 

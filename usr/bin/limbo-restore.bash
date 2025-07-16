@@ -18,7 +18,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         *)
-            BACKUP_PATH="$1"
+            export BACKUP_PATH="$1"
             shift
             ;;
     esac

@@ -40,5 +40,13 @@ tar -xzf "$TAR_INPUT_PATH" -C "$RSYNC_ARTEFACTS_DIR"
 
 #########################################################################
 
+# Optionally delete source
+if [[ "${TAR_DELETE_TAR_SOURCE:-0}" -eq 1 ]]; then
+  logger -p user.info -t "$LOGGER_TAG" "Removing original TAR source: $TAR_INPUT_PATH"
+  rm -f "$TAR_INPUT_PATH"
+fi
+
+#########################################################################
+
 #
 logger -p user.info -t "$LOGGER_TAG" "TAR module execution completed: $TAR_INPUT_PATH → $RSYNC_ARTEFACTS_DIR"

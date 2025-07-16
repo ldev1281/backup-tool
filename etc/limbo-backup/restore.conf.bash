@@ -22,6 +22,10 @@ TAR_ARTEFACTS_DIR="$ARTEFACTS_DIR/restore-tar"
 # WARNING! If rclone is disabled below (RCLONE_ENABLED=0) you should set this to backup-tar otherwise it won't find an archive to restore: 
 # TAR_ARTEFACTS_DIR="$ARTEFACTS_DIR/backup-tar"
 
+# If set to 1, the original .tar.gz file will be deleted after extracting.
+# If 0, it will be kept.
+TAR_DELETE_TAR_SOURCE=1
+
 # Directory where rsync module backups the local files and dirs if they are missed in the backup archive and RESTORE_OVERWRITE is empty.
 VERSIONS_ARTEFACTS_DIR="$ARTEFACTS_DIR/restore-versions/$(date +%Y%m%d_%H%M%S)/"
 
