@@ -11,7 +11,7 @@ show_help() {
   echo ""
   echo "Options:"
   echo "  --apps app1,app2      Comma-separated list of apps to restore (optional; default is restore all apps)"
-  echo "  --overwrite           Force overwrite existing files and delete missed files during restore (optional; default is to copy every file being changed/deleted to VERSIONS_ARTEFACTS_DIR)"
+  echo "  --overwrite           Force overwrite existing files and delete missed files during restore (optional; default is to copy every file being changed/deleted to RESTORE_ARCHIVES_DIR)"
   echo "  --help                Show this help message and exit"
   echo ""
   echo "Arguments:"
@@ -38,8 +38,7 @@ while [[ $# -gt 0 ]]; do
     shift
     ;;
   -*)
-    echo "Unknown option: $1"
-    logger -p user.err -t "$LOGGER_TAG" "Unknown option: $1"
+    logger -p user.err -s -t "$LOGGER_TAG" "Unknown option: $1"
     show_help
     exit 1
     ;;
@@ -52,8 +51,7 @@ done
 
 # Check for required positional argument
 if [[ -z "${BACKUP_PATH:-}" ]]; then
-  echo "Error: backup_archive_path is required."
-  logger -p user.err -t "$LOGGER_TAG" "Error: backup_archive_path is required."
+  logger -p user.err -s -t "$LOGGER_TAG" "Error: backup_archive_path is required."
   show_help
   exit 1
 fi
@@ -63,27 +61,26 @@ LOCKFILE="/run/limbo-backup.lock"
 exec 9>"$LOCKFILE"
 
 if ! flock -n 9; then
-  echo "limbo-backup or limbo-restore is already running." >&2
-  logger -p user.err -t "$LOGGER_TAG" "limbo-backup or limbo-restore is already running."
+  logger -p user.err -s -t "$LOGGER_TAG" "limbo-backup or limbo-restore is already running."
   exit 1
 fi
 
 # Directory containing all backup modules
 MODULES_DIR="/lib/limbo-backup/restore.modules.d"
 
-logger -p user.debug -t "$LOGGER_TAG" "MODULES_DIR=$MODULES_DIR"
+logger -p user.debug -s -t "$LOGGER_TAG" "MODULES_DIR=$MODULES_DIR"
 
-logger -p user.info -t "$LOGGER_TAG" "Starting module execution..."
+logger -p user.info -s -t "$LOGGER_TAG" "Starting module execution..."
 
 if [[ ! -d "$MODULES_DIR" ]]; then
-  logger -p user.err -t "$LOGGER_TAG" "Modules directory not found: $MODULES_DIR"
+  logger -p user.err -s -t "$LOGGER_TAG" "Modules directory not found: $MODULES_DIR"
   exit 1
 fi
 
 mapfile -t MODULES < <(find "$MODULES_DIR" -type f -name '[0-9][0-9]-*.bash' | sort)
 
 if [[ ${#MODULES[@]} -eq 0 ]]; then
-  logger -p user.warn -t "$LOGGER_TAG" "No modules found in $MODULES_DIR"
+  logger -p user.warn -s -t "$LOGGER_TAG" "No modules found in $MODULES_DIR"
   exit 0
 fi
 
@@ -91,17 +88,17 @@ for MODULE in "${MODULES[@]}"; do
 
   MODULE_NAME=$(basename "$MODULE")
 
-  logger -p user.info -t "$LOGGER_TAG" "Running module: $MODULE_NAME"
+  logger -p user.info -s -t "$LOGGER_TAG" "Running module: $MODULE_NAME"
 
   START_TIME=$(date +%s)
   if ! bash "$MODULE"; then
-    logger -p user.err -t "$LOGGER_TAG" "Module $MODULE_NAME failed"
+    logger -p user.err -s -t "$LOGGER_TAG" "Module $MODULE_NAME failed"
     exit 1
   fi
   END_TIME=$(date +%s)
   DURATION=$((END_TIME - START_TIME))
-  logger -p user.debug -t "$LOGGER_TAG" "Module $MODULE_NAME completed in ${DURATION}s"
+  logger -p user.debug -s -t "$LOGGER_TAG" "Module $MODULE_NAME completed in ${DURATION}s"
 
 done
 
-logger -p user.info -t "$LOGGER_TAG" "All modules executed successfully."
+logger -p user.info -s -t "$LOGGER_TAG" "All modules executed successfully."

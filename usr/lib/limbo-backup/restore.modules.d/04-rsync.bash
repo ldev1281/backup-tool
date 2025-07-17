@@ -13,12 +13,12 @@ METADATA_INCLUDE_PATHS=("$CONFIG_DIR")
 #########################################################################
 
 #
-logger -p user.info -t "$LOGGER_TAG" "Starting RSYNC module execution..."
+logger -p user.info -s -t "$LOGGER_TAG" "Starting RSYNC module execution..."
 
 #########################################################################
 
 # create folders
-mkdir -p "$VERSIONS_ARTEFACTS_DIR"
+mkdir -p "$RESTORE_ARCHIVES_DIR"
 
 #########################################################################
 
@@ -26,7 +26,7 @@ mkdir -p "$VERSIONS_ARTEFACTS_DIR"
 RSYNC_OPTS=(-aR --delete)
 
 if [[ -z "$RESTORE_OVERWRITE" ]]; then
-  RSYNC_OPTS+=("--backup" "--backup-dir=$VERSIONS_ARTEFACTS_DIR")
+  RSYNC_OPTS+=("--backup" "--backup-dir=$RESTORE_ARCHIVES_DIR")
 fi
 
 ####################
@@ -34,7 +34,7 @@ fi
 # Restore all metadata files from METADATA_INCLUDE_PATHS
 ARTEFACT_PATH="$RSYNC_ARTEFACTS_DIR/$METADATA_DIR"
 
-logger -p user.info -t "$LOGGER_TAG" "Starting restore for metadata $METADATA_DIR (${METADATA_INCLUDE_PATHS[@]})"
+logger -p user.info -s -t "$LOGGER_TAG" "Starting restore for metadata $METADATA_DIR (${METADATA_INCLUDE_PATHS[@]})"
 
 pushd "$ARTEFACT_PATH" >/dev/null
 
@@ -42,17 +42,17 @@ for INCLUDE_PATH in "${METADATA_INCLUDE_PATHS[@]}"; do
   RELATIVE_PATH="${INCLUDE_PATH#/}"
 
   if [[ ! -e "$RELATIVE_PATH" ]]; then
-    logger -p user.warn -t "$LOGGER_TAG" "Skip missing: $ARTEFACT_PATH/$RELATIVE_PATH"
+    logger -p user.warn -s -t "$LOGGER_TAG" "Skip missing: $ARTEFACT_PATH/$RELATIVE_PATH"
     continue
   fi
 
-  logger -p user.info -t "$LOGGER_TAG" "Syncing: $RELATIVE_PATH -> /"
+  logger -p user.info -s -t "$LOGGER_TAG" "Syncing: $RELATIVE_PATH -> /"
   rsync "${RSYNC_OPTS[@]}" "$RELATIVE_PATH" /
 done
 
 popd >/dev/null
 
-logger -p user.info -t "$LOGGER_TAG" "Restore completed for metadata $METADATA_DIR (${METADATA_INCLUDE_PATHS[@]})"
+logger -p user.info -s -t "$LOGGER_TAG" "Restore completed for metadata $METADATA_DIR (${METADATA_INCLUDE_PATHS[@]})"
 
 #########################################################################
 
@@ -61,7 +61,7 @@ mapfile -t RSYNC_CONFIG_FILES < <(find "$RSYNC_CONFIG_DIR" -type f -name '[0-9][
 
 # Restore all artefacts or particular ones
 if [[ ${#RESTORE_APPS[@]} -eq 0 ]]; then
-  logger -p user.err -t "$LOGGER_TAG" "RESTORE_APPS is not set in restore.conf.bash"
+  logger -p user.err -s -t "$LOGGER_TAG" "RESTORE_APPS is not set in restore.conf.bash"
   exit 1
 fi
 
@@ -83,7 +83,7 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
     done
 
     if [[ "$RESTORE_ARTEFACT" -eq 0 ]]; then
-      logger -p user.info -t "$LOGGER_TAG" "Skipping restore for: $ARTEFACT_NAME"
+      logger -p user.info -s -t "$LOGGER_TAG" "Skipping restore for: $ARTEFACT_NAME"
       continue
     fi
   fi
@@ -94,10 +94,10 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
 
   source "$CONFIG"
 
-  logger -p user.info -t "$LOGGER_TAG" "Starting restore for: $ARTEFACT_NAME"
+  logger -p user.info -s -t "$LOGGER_TAG" "Starting restore for: $ARTEFACT_NAME"
 
   if [[ -n "${CMD_BEFORE_RESTORE:-}" ]]; then
-    logger -p user.info -t "$LOGGER_TAG" "Running CMD_BEFORE_RESTORE for: $ARTEFACT_NAME"
+    logger -p user.info -s -t "$LOGGER_TAG" "Running CMD_BEFORE_RESTORE for: $ARTEFACT_NAME"
     eval "$CMD_BEFORE_RESTORE"
   fi
 
@@ -107,25 +107,25 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
     RELATIVE_PATH="${INCLUDE_PATH#/}"
 
     if [[ ! -e "$RELATIVE_PATH" ]]; then
-      logger -p user.warn -t "$LOGGER_TAG" "Skip missing: $ARTEFACT_PATH/$RELATIVE_PATH"
+      logger -p user.warn -s -t "$LOGGER_TAG" "Skip missing: $ARTEFACT_PATH/$RELATIVE_PATH"
       continue
     fi
 
-    logger -p user.info -t "$LOGGER_TAG" "Syncing: $RELATIVE_PATH -> /"
+    logger -p user.info -s -t "$LOGGER_TAG" "Syncing: $RELATIVE_PATH -> /"
     rsync "${RSYNC_OPTS[@]}" "$RELATIVE_PATH" /
   done
 
   popd >/dev/null
 
   if [[ -n "${CMD_AFTER_RESTORE:-}" ]]; then
-    logger -p user.info -t "$LOGGER_TAG" "Running CMD_AFTER_RESTORE for: $ARTEFACT_NAME"
+    logger -p user.info -s -t "$LOGGER_TAG" "Running CMD_AFTER_RESTORE for: $ARTEFACT_NAME"
     eval "$CMD_AFTER_RESTORE"
   fi
 
-  logger -p user.info -t "$LOGGER_TAG" "Restore completed for: $ARTEFACT_NAME"
+  logger -p user.info -s -t "$LOGGER_TAG" "Restore completed for: $ARTEFACT_NAME"
 done
 
 #########################################################################
 
 #
-logger -p user.info -t "$LOGGER_TAG" "RSYNC module execution finished."
+logger -p user.info -s -t "$LOGGER_TAG" "RSYNC module execution finished."

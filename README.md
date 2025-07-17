@@ -231,7 +231,7 @@ Logs are written to `journalctl` via systemd when executed as a service.
 | Option         | Required | Description | Example |
 |----------------|----------|-------------|---------|
 | `--apps`       | Optional | Specify a comma-separated list of applications to restore from the backup. By default, all applications will be restored. | `--apps keycloak,wekan` |
-| `--overwrite`  | Optional | Forcefully overwrite files during restore and delete files that do not exist in the backup. By default, all files to be overwritten or deleted are first backed up to the `VERSIONS_ARTEFACTS_DIR` directory. | `--overwrite` |
+| `--overwrite`  | Optional | Forcefully overwrite files during restore and delete files that do not exist in the backup. By default, all files to be overwritten or deleted are first backed up to the `RESTORE_ARCHIVES_DIR` directory. | `--overwrite` |
 
 | Argument       | Required | Description | Example |
 |----------------|----------|-------------|---------|
