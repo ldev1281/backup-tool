@@ -11,7 +11,7 @@ show_help() {
   echo ""
   echo "Options:"
   echo "  --apps app1,app2      Comma-separated list of apps to restore (optional; by default, all apps are restored)"
-  echo "  --no-preserve         Do not copy every file being changed/deleted to RESTORE_ARCHIVES_DIR (optional; by default, everything is preserved)"
+  echo "  --no-keep-local       Do not preserve every file being changed/deleted by copying to RESTORE_ARCHIVES_DIR (optional; by default, everything is preserved)"
   echo "  --help                Show this help message and exit"
   echo ""
   echo "Arguments:"
@@ -30,8 +30,7 @@ while [[ $# -gt 0 ]]; do
     exit 0
     ;;
   --apps)
-    IFS=',' read -ra CLI_RESTORE_APPS <<<"$2"
-    export CLI_RESTORE_APPS
+    export CLI_RESTORE_APPS="$2"
     shift 2
     ;;
   --no-keep-local)

@@ -66,7 +66,7 @@ logger -p user.info -s -t "$LOGGER_TAG" "Restore completed for metadata $METADAT
 mapfile -t RSYNC_CONFIG_FILES < <(find "$RSYNC_CONFIG_DIR" -type f -name '[0-9][0-9]-*.conf.bash' | sort)
 
 # Override RESTORE_APPS with the CLI list, if provided
-[ -z "${CLI_RESTORE_APPS:-}" ] || RESTORE_APPS=("${CLI_RESTORE_APPS[@]}")
+[ -z "${CLI_RESTORE_APPS:-}" ] || IFS=',' read -ra RESTORE_APPS <<<"$CLI_RESTORE_APPS"
 
 # Restore all artefacts or particular ones
 if [[ ${#RESTORE_APPS[@]} -eq 0 ]]; then
