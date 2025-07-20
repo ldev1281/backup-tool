@@ -32,7 +32,7 @@ RSYNC_OPTS=(-aR --delete)
 if [[ "${RESTORE_KEEP_LOCAL:-1}" -eq 1 ]]; then
   RSYNC_OPTS+=("--backup" "--backup-dir=$RESTORE_ARCHIVES_DIR")
 else
-  logger -p user.info -s -t "$LOGGER_TAG" "Restore will not preserve all files and directories to be overwritten or deleted"
+  logger -p user.warn -s -t "$LOGGER_TAG" "Restore will not preserve all files and directories to be overwritten or deleted"
 fi
 
 ####################
@@ -92,7 +92,7 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
     done
 
     if [[ "$RESTORE_ARTEFACT" -eq 0 ]]; then
-      logger -p user.info -s -t "$LOGGER_TAG" "Skipping restore for: $ARTEFACT_NAME"
+      logger -p user.warn -s -t "$LOGGER_TAG" "Skipping restore for: $ARTEFACT_NAME"
       continue
     fi
   fi
