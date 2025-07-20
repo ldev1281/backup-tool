@@ -25,8 +25,14 @@ mkdir -p "$RESTORE_ARCHIVES_DIR"
 # Default rsync options for restoring
 RSYNC_OPTS=(-aR --delete)
 
-if [[ -z "$RESTORE_OVERWRITE" ]]; then
+# Override RESTORE_KEEP_LOCAL with the CLI, if provided
+[[ -z "${CLI_RESTORE_KEEP_LOCAL:-}" ]] || RESTORE_KEEP_LOCAL=$CLI_RESTORE_KEEP_LOCAL
+
+# Preserve all files to be overwritten or deleted
+if [[ "${RESTORE_KEEP_LOCAL:-1}" -eq 1 ]]; then
   RSYNC_OPTS+=("--backup" "--backup-dir=$RESTORE_ARCHIVES_DIR")
+else
+  logger -p user.info -s -t "$LOGGER_TAG" "Restore will not preserve all files and directories to be overwritten or deleted"
 fi
 
 ####################
@@ -59,9 +65,12 @@ logger -p user.info -s -t "$LOGGER_TAG" "Restore completed for metadata $METADAT
 # Find all matching config files and sort by name
 mapfile -t RSYNC_CONFIG_FILES < <(find "$RSYNC_CONFIG_DIR" -type f -name '[0-9][0-9]-*.conf.bash' | sort)
 
+# Override RESTORE_APPS with the CLI list, if provided
+[ -z "${CLI_RESTORE_APPS:-}" ] || RESTORE_APPS=("${CLI_RESTORE_APPS[@]}")
+
 # Restore all artefacts or particular ones
 if [[ ${#RESTORE_APPS[@]} -eq 0 ]]; then
-  logger -p user.err -s -t "$LOGGER_TAG" "RESTORE_APPS is not set in restore.conf.bash"
+  logger -p user.err -s -t "$LOGGER_TAG" "RESTORE_APPS was neither set in the config nor provided via CLI option."
   exit 1
 fi
 

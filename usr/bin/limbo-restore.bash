@@ -10,8 +10,8 @@ show_help() {
   echo "Usage: $0 [OPTIONS] <backup_archive_path>"
   echo ""
   echo "Options:"
-  echo "  --apps app1,app2      Comma-separated list of apps to restore (optional; default is restore all apps)"
-  echo "  --overwrite           Force overwrite existing files and delete missed files during restore (optional; default is to copy every file being changed/deleted to RESTORE_ARCHIVES_DIR)"
+  echo "  --apps app1,app2      Comma-separated list of apps to restore (optional; by default, all apps are restored)"
+  echo "  --no-preserve         Do not copy every file being changed/deleted to RESTORE_ARCHIVES_DIR (optional; by default, everything is preserved)"
   echo "  --help                Show this help message and exit"
   echo ""
   echo "Arguments:"
@@ -30,11 +30,12 @@ while [[ $# -gt 0 ]]; do
     exit 0
     ;;
   --apps)
-    IFS=',' read -ra RESTORE_APPS <<<"$2"
+    IFS=',' read -ra CLI_RESTORE_APPS <<<"$2"
+    export CLI_RESTORE_APPS
     shift 2
     ;;
-  --overwrite)
-    RESTORE_OVERWRITE="1"
+  --no-keep-local)
+    export CLI_RESTORE_KEEP_LOCAL=0
     shift
     ;;
   -*)
