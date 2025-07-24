@@ -24,6 +24,11 @@ logger -p user.info -s -t "$LOGGER_TAG" "Starting GPG decryption module..."
 
 #########################################################################
 
+# create folders
+mkdir -p "$TAR_ARTEFACTS_DIR"
+
+#########################################################################
+
 # Decrypt archive
 if [[ ! -f "$GPG_SOURCE_PATH" ]]; then
   logger -p user.err -s -t "$LOGGER_TAG" "GPG source archive not found: $GPG_SOURCE_PATH"
