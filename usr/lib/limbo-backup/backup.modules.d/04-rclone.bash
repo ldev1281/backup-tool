@@ -91,6 +91,10 @@ case "$RCLONE_PROTO" in
   
 esac
 
+# Generate rclone proxy URL
+RCLONE_PROXY="${RCLONE_PROXY_PROTO:+${RCLONE_PROXY_PROTO}://}${RCLONE_PROXY_USER:+${RCLONE_PROXY_USER}}\
+${RCLONE_PROXY_PASSWORD:+:${RCLONE_PROXY_PASSWORD}}${RCLONE_PROXY_USER:+@}${RCLONE_PROXY_HOST:+$(getent ahosts ${RCLONE_PROXY_HOST} \
+| awk '/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ { print $1; exit }')}${RCLONE_PROXY_PORT:+:${RCLONE_PROXY_PORT}}"
 
 #########################################################################
 
@@ -99,7 +103,7 @@ REMOTE_PATH_CURRENT="${REMOTE_PATH}/${BACKUP_NAME}${BACKUP_FILENAME_EXTENSION}"
 
 logger -p user.info -t "$LOGGER_TAG" "Uploading backup: $LOCAL_PATH_CURRENT → $REMOTE_PATH_CURRENT"
 
-rclone copyto "$LOCAL_PATH_CURRENT" "${RCLONE_REMOTE_BASE}/${REMOTE_PATH_CURRENT}" \
+${RCLONE_PROXY:+env https_proxy="${RCLONE_PROXY}" http_proxy="${RCLONE_PROXY}"} rclone copyto "$LOCAL_PATH_CURRENT" "${RCLONE_REMOTE_BASE}/${REMOTE_PATH_CURRENT}" \
   "${RCLONE_EXTRA_FLAGS[@]}" \
   --no-traverse
 
@@ -113,7 +117,7 @@ YEAR=$(date +'%Y')
 for SUFFIX in "$YEAR" "$MONTH" "$TODAY"; do
   REMOTE_PATH_VERSIONED="$REMOTE_PATH/${BACKUP_NAME}.${SUFFIX}${BACKUP_FILENAME_EXTENSION}"
   logger -p user.info -t "$LOGGER_TAG" "Creating versioned copy: $REMOTE_PATH_VERSIONED"
-  rclone copyto "${RCLONE_REMOTE_BASE}/${REMOTE_PATH_CURRENT}" "${RCLONE_REMOTE_BASE}/${REMOTE_PATH_VERSIONED}" \
+  ${RCLONE_PROXY:+env https_proxy="${RCLONE_PROXY}" http_proxy="${RCLONE_PROXY}"} rclone copyto "${RCLONE_REMOTE_BASE}/${REMOTE_PATH_CURRENT}" "${RCLONE_REMOTE_BASE}/${REMOTE_PATH_VERSIONED}" \
     "${RCLONE_EXTRA_FLAGS[@]}" \
     --no-traverse
 done

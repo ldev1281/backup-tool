@@ -40,6 +40,10 @@ fi
 
 mkdir -p "$TARGET_DIR"
 
+# Generate rclone proxy URL
+CURL_PROXY="${CURL_PROXY_PROTO:+${CURL_PROXY_PROTO}://}${CURL_PROXY_USER:+${CURL_PROXY_USER}}\
+${CURL_PROXY_PASSWORD:+:${CURL_PROXY_PASSWORD}}${CURL_PROXY_USER:+@}${CURL_PROXY_HOST:+${CURL_PROXY_HOST}}${CURL_PROXY_PORT:+:${CURL_PROXY_PORT}}"
+
 #########################################################################
 
 # Download or copy file
@@ -48,7 +52,7 @@ TARGET_PATH="$TARGET_DIR/${BACKUP_NAME}${TARGET_EXT}"
 
 if [[ "$BACKUP_PATH" == http://* || "$BACKUP_PATH" == https://* || "$BACKUP_PATH" == file://* ]]; then
   logger -p user.info -s -t "$LOGGER_TAG" "Downloading backup: $BACKUP_PATH → $TARGET_PATH"
-  curl -fSL --silent --show-error "$BACKUP_PATH" -o "$TARGET_PATH" || {
+  ${CURL_PROXY:+env https_proxy="${CURL_PROXY}" http_proxy="${CURL_PROXY}"} curl -fSL --silent --show-error "$BACKUP_PATH" -o "$TARGET_PATH" || {
     logger -p user.err -s -t "$LOGGER_TAG" "Error during downloading backup: $BACKUP_PATH → $TARGET_PATH"
     exit 1
   }

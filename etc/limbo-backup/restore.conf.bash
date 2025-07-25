@@ -41,3 +41,12 @@ GPG_ARTEFACTS_DIR="$ARTEFACTS_DIR/restore-gpg"
 # If set to 1, the original .tar.gz.gpg file will be deleted after decryption.
 # If 0, it will be kept.
 GPG_DELETE_GPG_SOURCE=1
+
+# === curl module settings ===
+
+# Proxy to use with curl for downloading backups.
+#CURL_PROXY_PROTO="socks5h"
+#CURL_PROXY_HOST="proxy.onion"
+#CURL_PROXY_USER="username"
+#CURL_PROXY_PASSWORD="password"
+#CURL_PROXY_PORT="1080"
