@@ -91,11 +91,6 @@ case "$RCLONE_PROTO" in
   
 esac
 
-# Generate rclone proxy URL
-RCLONE_PROXY="${RCLONE_PROXY_PROTO:+${RCLONE_PROXY_PROTO}://}${RCLONE_PROXY_USER:+${RCLONE_PROXY_USER}}\
-${RCLONE_PROXY_PASSWORD:+:${RCLONE_PROXY_PASSWORD}}${RCLONE_PROXY_USER:+@}${RCLONE_PROXY_HOST:+$(getent ahosts ${RCLONE_PROXY_HOST} \
-| awk '/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ { print $1; exit }')}${RCLONE_PROXY_PORT:+:${RCLONE_PROXY_PORT}}"
-
 #########################################################################
 
 # Upload the "current" backup

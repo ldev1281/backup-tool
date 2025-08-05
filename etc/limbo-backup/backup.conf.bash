@@ -59,8 +59,4 @@ RCLONE_ENABLED=0
 #RCLONE_S3_SERVER_SIDE_ENCRYPTION="AES256"
 
 # Proxy to use with rclone for uploading backups
-#RCLONE_PROXY_PROTO="socks5"
-#RCLONE_PROXY_HOST="proxy.onion"
-#RCLONE_PROXY_USER="username"
-#RCLONE_PROXY_PASSWORD="password"
-#RCLONE_PROXY_PORT="1080"
+RCLONE_PROXY="socks5h://127.0.0.1:9050"

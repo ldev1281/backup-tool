@@ -40,10 +40,6 @@ fi
 
 mkdir -p "$TARGET_DIR"
 
-# Generate rclone proxy URL
-CURL_PROXY="${CURL_PROXY_PROTO:+${CURL_PROXY_PROTO}://}${CURL_PROXY_USER:+${CURL_PROXY_USER}}\
-${CURL_PROXY_PASSWORD:+:${CURL_PROXY_PASSWORD}}${CURL_PROXY_USER:+@}${CURL_PROXY_HOST:+${CURL_PROXY_HOST}}${CURL_PROXY_PORT:+:${CURL_PROXY_PORT}}"
-
 #########################################################################
 
 # Download or copy file
