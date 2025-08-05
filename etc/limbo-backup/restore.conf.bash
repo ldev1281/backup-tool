@@ -22,7 +22,7 @@ RESTORE_ARCHIVES_DIR="$ARTEFACTS_DIR/restore-archives/$(date +%Y%m%d_%H%M%S)/"
 # Directory where rsync module takes the raw backup files to restore.
 RSYNC_ARTEFACTS_DIR="$ARTEFACTS_DIR/restore-rsync"
 
-# Directory where tar module stores uncompressed backup archives (.tar). 
+# Directory where tar module stores uncompressed backup archives (.tar).
 TAR_ARTEFACTS_DIR="$ARTEFACTS_DIR/restore-tar"
 
 # If set to 1, the original .tar.gz file will be deleted after extracting.

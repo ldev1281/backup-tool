@@ -30,7 +30,6 @@ GPG_DELETE_TAR_SOURCE=1
 # GPG key fingerprint used to encrypt backups.
 GPG_FINGERPRINT=""
 
-
 # === rclone module settings ===
 
 # Enables or disables the rclone upload module.
