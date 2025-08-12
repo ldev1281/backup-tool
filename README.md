@@ -61,17 +61,22 @@ Then the backup directory will contain:
 
 --- 
 
-## Installation
+### 1. Download the latest .deb release
 
-### 1. Download the latest `.deb` release
-
-Visit the [Releases](https://github.com/jordimock/backup-tool/releases) page and download the latest `.deb` package, or use:
+Visit the [Releases](https://github.com/ldev1281/backup-tool/releases) page and download the latest .deb package, or use:
 
 ```bash
-wget https://github.com/jordimock/backup-tool/releases/download/v0.1/limbo-backup-tool_0.1_all.deb
+wget https://github.com/ldev1281/backup-tool/releases/download/v0.4/limbo-backup_v0.4_all.deb
 ```
 
 > Replace the version if needed.
+
+To automate latest version download run following command:
+
+``` bash
+VER=$(wget -qO- https://github.com/jordimock/backup-tool/releases/latest/download/VERSION)
+wget "https://github.com/ldev1281/backup-tool/releases/download/v${VER}/limbo-backup_v${VER}_all.deb"
+```
 
 ### 2. Install dependencies
 
