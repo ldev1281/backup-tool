@@ -66,7 +66,7 @@ Then the backup directory will contain:
 Visit the [Releases](https://github.com/ldev1281/backup-tool/releases) page and download the latest .deb package, or use:
 
 ```bash
-wget https://github.com/ldev1281/backup-tool/releases/download/v0.4/limbo-backup_v0.4_all.deb
+wget -O limbo-backup.deb https://github.com/ldev1281/backup-tool/releases/download/v0.4/limbo-backup_v0.4_all.deb
 ```
 
 > Replace the version if needed.
@@ -75,7 +75,7 @@ To automate latest version download run following command:
 
 ``` bash
 VER=$(wget -qO- https://github.com/jordimock/backup-tool/releases/latest/download/VERSION)
-wget "https://github.com/ldev1281/backup-tool/releases/download/v${VER}/limbo-backup_v${VER}_all.deb"
+wget -O limbo-backup.deb "https://github.com/ldev1281/backup-tool/releases/download/v${VER}/limbo-backup_v${VER}_all.deb"
 ```
 
 ### 2. Install dependencies
@@ -99,7 +99,7 @@ sudo apt-get install -y \
 ### 3. Install the package
 
 ```bash
-sudo dpkg -i limbo-backup-tool_0.1_all.deb
+sudo dpkg -i limbo-backup.deb
 ```
 
 ### 4. Post-installation check
