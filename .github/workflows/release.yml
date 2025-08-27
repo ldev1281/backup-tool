@@ -37,10 +37,13 @@ jobs:
         echo "$VERSION" > usr/share/limbo-backup/VERSION
         mkdir -p build
         dpkg-deb --build . "build/limbo-backup_v${VERSION}_all.deb"
+        echo "$VERSION" > build/VERSION
 
     - name: Upload .deb to GitHub release
       uses: softprops/action-gh-release@v1
       with:
-        files: build/*.deb
+        files: |
+          build/*.deb
+          build/VERSION
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

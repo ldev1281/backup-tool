@@ -79,6 +79,7 @@ case "$RCLONE_PROTO" in
     [[ -n "${RCLONE_S3_STORAGE_CLASS:-}" ]] && RCLONE_EXTRA_FLAGS+=(--s3-storage-class="$RCLONE_S3_STORAGE_CLASS")
     [[ -n "${RCLONE_S3_ACL:-}" ]] && RCLONE_EXTRA_FLAGS+=(--s3-acl="$RCLONE_S3_ACL")
     [[ -n "${RCLONE_S3_SERVER_SIDE_ENCRYPTION:-}" ]] && RCLONE_EXTRA_FLAGS+=(--s3-server-side-encryption="$RCLONE_S3_SERVER_SIDE_ENCRYPTION")
+    [[ "${RCLONE_S3_NO_CHECK_BUCKET:-false}" == "true" ]] && RCLONE_EXTRA_FLAGS+=(--s3-no-check-bucket)
 
     REMOTE_PATH="${RCLONE_S3_REMOTE_PATH#/}"
     ;;
