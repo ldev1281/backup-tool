@@ -126,15 +126,24 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
 
   popd >/dev/null
 
-  if [[ -n "${CMD_AFTER_RESTORE:-}" ]]; then
+  if declare -p CMD_AFTER_RESTORE &>/dev/null; then
     logger -p user.info -s -t "$LOGGER_TAG" "Running CMD_AFTER_RESTORE for: $ARTEFACT_NAME"
-    eval "$CMD_AFTER_RESTORE"
+    if [[ "$(declare -p CMD_AFTER_RESTORE 2>/dev/null)" == declare\ -a* ]]; then
+      for __cmd in "${CMD_AFTER_RESTORE[@]}"; do
+        [[ -z "$__cmd" ]] && continue
+        logger -p user.info -s -t "$LOGGER_TAG" "CMD_AFTER_RESTORE: executing: $__cmd"
+        eval "$__cmd"
+      done
+    else
+      if [[ -n "${CMD_AFTER_RESTORE:-}" ]]; then
+        logger -p user.info -s -t "$LOGGER_TAG" "CMD_AFTER_RESTORE: executing: $CMD_AFTER_RESTORE"
+        eval "$CMD_AFTER_RESTORE"
+      fi
+    fi
   fi
 
   logger -p user.info -s -t "$LOGGER_TAG" "Restore completed for: $ARTEFACT_NAME"
 done
-
-#########################################################################
 
 #
 logger -p user.info -s -t "$LOGGER_TAG" "RSYNC module execution finished."
