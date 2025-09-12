@@ -47,9 +47,20 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
 
   logger -p user.info -t "$LOGGER_TAG" "Starting backup for: $ARTEFACT_NAME"
 
-  if [[ -n "${CMD_BEFORE_BACKUP:-}" ]]; then
+  if declare -p CMD_BEFORE_BACKUP &>/dev/null; then
     logger -p user.info -t "$LOGGER_TAG" "Running CMD_BEFORE_BACKUP for: $ARTEFACT_NAME"
-    eval "$CMD_BEFORE_BACKUP"
+    if [[ "$(declare -p CMD_BEFORE_BACKUP 2>/dev/null)" == declare\ -a* ]]; then
+      for __cmd in "${CMD_BEFORE_BACKUP[@]}"; do
+        [[ -z "$__cmd" ]] && continue
+        logger -p user.info -t "$LOGGER_TAG" "CMD_BEFORE_BACKUP: executing: $__cmd"
+        eval "$__cmd"
+      done
+    else
+      if [[ -n "${CMD_BEFORE_BACKUP:-}" ]]; then
+        logger -p user.info -t "$LOGGER_TAG" "CMD_BEFORE_BACKUP: executing: $CMD_BEFORE_BACKUP"
+        eval "$CMD_BEFORE_BACKUP"
+      fi
+    fi
   fi
 
   RSYNC_OPTS=(-aR --delete)
@@ -62,9 +73,20 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
   logger -p user.info -t "$LOGGER_TAG" "Syncing: ${INCLUDE_PATHS[*]} -> $ARTEFACT_PATH"
   rsync "${RSYNC_OPTS[@]}" "${INCLUDE_PATHS[@]}" "$ARTEFACT_PATH"
 
-  if [[ -n "${CMD_AFTER_BACKUP:-}" ]]; then
+  if declare -p CMD_AFTER_BACKUP &>/dev/null; then
     logger -p user.info -t "$LOGGER_TAG" "Running CMD_AFTER_BACKUP for: $ARTEFACT_NAME"
-    eval "$CMD_AFTER_BACKUP"
+    if [[ "$(declare -p CMD_AFTER_BACKUP 2>/dev/null)" == declare\ -a* ]]; then
+      for __cmd in "${CMD_AFTER_BACKUP[@]}"; do
+        [[ -z "$__cmd" ]] && continue
+        logger -p user.info -t "$LOGGER_TAG" "CMD_AFTER_BACKUP: executing: $__cmd"
+        eval "$__cmd"
+      done
+    else
+      if [[ -n "${CMD_AFTER_BACKUP:-}" ]]; then
+        logger -p user.info -t "$LOGGER_TAG" "CMD_AFTER_BACKUP: executing: $CMD_AFTER_BACKUP"
+        eval "$CMD_AFTER_BACKUP"
+      fi
+    fi
   fi
 
   logger -p user.info -t "$LOGGER_TAG" "Backup completed for: $ARTEFACT_NAME"

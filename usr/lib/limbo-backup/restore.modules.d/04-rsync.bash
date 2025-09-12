@@ -105,9 +105,21 @@ for CONFIG in "${RSYNC_CONFIG_FILES[@]}"; do
 
   logger -p user.info -s -t "$LOGGER_TAG" "Starting restore for: $ARTEFACT_NAME"
 
-  if [[ -n "${CMD_BEFORE_RESTORE:-}" ]]; then
+
+  if declare -p CMD_BEFORE_RESTORE &>/dev/null; then
     logger -p user.info -s -t "$LOGGER_TAG" "Running CMD_BEFORE_RESTORE for: $ARTEFACT_NAME"
-    eval "$CMD_BEFORE_RESTORE"
+    if [[ "$(declare -p CMD_BEFORE_RESTORE 2>/dev/null)" == declare\ -a* ]]; then
+      for __cmd in "${CMD_BEFORE_RESTORE[@]}"; do
+        [[ -z "$__cmd" ]] && continue
+        logger -p user.info -s -t "$LOGGER_TAG" "CMD_BEFORE_RESTORE: executing: $__cmd"
+        eval "$__cmd"
+      done
+    else
+      if [[ -n "${CMD_BEFORE_RESTORE:-}" ]]; then
+        logger -p user.info -s -t "$LOGGER_TAG" "CMD_BEFORE_RESTORE: executing: $CMD_BEFORE_RESTORE"
+        eval "$CMD_BEFORE_RESTORE"
+      fi
+    fi
   fi
 
   pushd "$ARTEFACT_PATH" >/dev/null
