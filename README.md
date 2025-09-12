@@ -169,7 +169,7 @@ CMD_BEFORE_RESTORE="docker compose --project-directory /docker/your-app stop"
 CMD_AFTER_RESTORE="docker compose --project-directory /docker/your-app start"
 # Example 2: CMD_AFTER_RESTORE as an array (multiple commands)
 # CMD_AFTER_RESTORE=(
-#   "docker network create --driver bridge your-network"
+#   "docker network create --driver bridge your-network || true"
 #   "docker compose --project-directory /docker/your-app restart"
 # )
 
