@@ -163,10 +163,29 @@ Only files that match this pattern and are executable will be processed.
 Each task file should define the following variables:
 
 ```bash
+# Example 1: single command (string)
 CMD_BEFORE_BACKUP="docker compose --project-directory /docker/your-app stop"
 CMD_AFTER_BACKUP="docker compose --project-directory /docker/your-app start"
 CMD_BEFORE_RESTORE="docker compose --project-directory /docker/your-app stop"
 CMD_AFTER_RESTORE="docker compose --project-directory /docker/your-app start"
+
+# Example 2: multiple commands (array)
+# CMD_BEFORE_BACKUP=(
+#   "echo 'Stopping app...'"
+#   "docker compose --project-directory /docker/your-app stop"
+# )
+# CMD_AFTER_BACKUP=(
+#   "docker compose --project-directory /docker/your-app start"
+#   "echo 'Backup completed'"
+# )
+# CMD_BEFORE_RESTORE=(
+#   "docker network create --driver bridge your-network || true"
+#   "docker compose --project-directory /docker/your-app stop"
+# )
+# CMD_AFTER_RESTORE=(
+#   "docker compose --project-directory /docker/your-app start"
+#   "docker compose --project-directory /docker/your-app restart"
+# )
 
 INCLUDE_PATHS=(
   "/docker/your-app"
