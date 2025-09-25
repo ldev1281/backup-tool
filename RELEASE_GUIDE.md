@@ -1,4 +1,4 @@
-# Release Guide For Backup Tool 
+# Release Guide For Backup Tool
 
 A short guide on how to properly prepare and release a new version of
 the [`backup-tool`](https://github.com/ldev1281/backup-tool) project.
@@ -9,58 +9,62 @@ the [`backup-tool`](https://github.com/ldev1281/backup-tool) project.
 
 -   Working branch for release preparation: `dev`.
 -   Version must be updated **in two places**:
-    1.  `backup-tool/DEBIAN/control` --- `Version` field (Debian package
-        format)
+    1.  `backup-tool/DEBIAN/control` --- `Version` field (Debian package format)
     2.  `README.md` --- displayed version
--   Git release tag: `vX.Y[.Z]` (for example, `v0.6`).
+-   Git release tag: `vX.Y[.Z]` (for example, `v0.7`).
 
 ------------------------------------------------------------------------
 
 ## Pre-release checklist
 
-1.  All changes are committed to `dev`.
-2.  Version updated in `backup-tool/DEBIAN/control`.
-3.  Version synchronized in `README.md`.
+1.  Version updated in `backup-tool/DEBIAN/control`.
+2.  Version updated in `README.md`.
+3.  All changes are committed to `dev`.
 
 ------------------------------------------------------------------------
 
 ## Step-by-step release process
 
-1)  **Make changes in the project**
+1)  **Update version in `backup-tool/DEBIAN/control`**  
+    Open the file and update the `Version` field to the target package version:
 
-    -   Finish your edits and commit them to the `dev` branch.
-
-2)  **Update version in `backup-tool/DEBIAN/control`** Open the file and
-    update the `Version` field to the target package version:
-
-    ``` debcontrol
-    Version: 0.6
+    ```debcontrol
+    Version: 0.7
     ```
 
-3)  **Update version in `README.md`**
+2)  **Update version in `README.md`**
 
-    -   Update all version mentions (badges, installation examples,
-        headers, etc.).
+    -   Update all version mentions (badges, installation examples, headers, etc.).
 
-4)  **Create or move the tag on `dev`** Make sure you are on the `dev`
-    branch:
+3)  **Commit changes to `dev`**
 
-    ``` bash
+    ```bash
     git checkout dev
     git pull
+    git add .
+    git commit -m "Release: bump version to 0.7"
+    git push
     ```
 
-    Assign/update the tag (replace `v0.6` with your version):
+4)  **Create a new tag for release**
 
-    ``` bash
-    git tag -f v0.6
+    ```bash
+    git tag v0.7
+    git push --tags
     ```
 
-5)  **Push the tag with force**
+    > **ℹ️ Note:**  
+    > If the release already exists, but you only need to apply a small fix  
+    > (like a typo in docs), you can **move the tag** instead of creating a new one:  
+    >
+    > ```bash
+    > git tag -f v0.6
+    > git push --tags --force
+    > ```
+    >
+    > This is a workaround and should only be used for minor fixes.
+    > For regular releases, always create a new tag (`v0.6.1`, `v0.7`).
 
-    ``` bash
-    git push --tags --force
-    ```
 
 > **Note:** after pushing, CI/build pipelines triggered by the tag will
 > build the correct package version.
