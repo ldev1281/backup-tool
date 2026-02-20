@@ -18,8 +18,11 @@ logger -p user.info -t "$LOGGER_TAG" "Starting RSYNC module execution..."
 #########################################################################
 
 # create folders
-mkdir -p "$RSYNC_ARTEFACTS_DIR"
-mkdir -p "$METADATA_DIR"
+: "${RSYNC_ARTEFACTS_DIR:?RSYNC_ARTEFACTS_DIR is not set or empty}"
+
+rm -rf -- "$RSYNC_ARTEFACTS_DIR"
+mkdir -p -- "$RSYNC_ARTEFACTS_DIR"
+mkdir -p -- "$METADATA_DIR"
 
 # backup config
 rsync -aR --delete "$CONFIG_DIR" "$METADATA_DIR"
